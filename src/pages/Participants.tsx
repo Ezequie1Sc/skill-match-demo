@@ -1,7 +1,7 @@
 
 
 import participantsData from '../assets/data/participants.json'
-import type { Participant } from '../types'
+import type { Participant } from '../types/participant_model'
 
 function Participants() {
   const participants = participantsData as Participant[];
@@ -36,11 +36,11 @@ function Participants() {
             className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"
           >
             <h2 className="text-xl font-bold text-slate-900">
-              {participant.name}
+              {participant.fullName}
             </h2>
 
             <p className="mt-1 text-sm font-medium text-indigo-600">
-              {participant.role}
+              {participant.preferredRole}
             </p>
 
             <p className="mt-3 text-sm text-slate-600">

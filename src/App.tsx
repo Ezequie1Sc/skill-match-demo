@@ -1,28 +1,31 @@
-import { useState } from 'react'
-import NavBar from './components/Navbar'
-import Home from './pages/Home'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+
+import StudentHome from './pages/StudentHome'
+import AdminHome from './pages/AdminHome'
+import Register from './pages/Register'
 import Participants from './pages/Participants'
 import Generator from './pages/Generator'
 import Dashboard from './pages/Dashboard'
 
-type Page = 'home' | 'participants' | 'generator' | 'dashboard'
-
 function App() {
-  const [currentPage, setCurrentPage] = useState<Page>('home')
-
   return (
-    <>
-      <NavBar currentPage={currentPage} onNavigate={setCurrentPage} />
-
+    <BrowserRouter>
       <main className="min-h-screen bg-slate-100 px-6 py-10">
         <div className="mx-auto max-w-6xl">
-          {currentPage === 'home' && <Home />}
-          {currentPage === 'participants' && <Participants />}
-          {currentPage === 'generator' && <Generator />}
-          {currentPage === 'dashboard' && <Dashboard />}
+          <Routes>
+            <Route path="/" element={<Navigate to="/student" />} />
+
+            <Route path="/register" element={<StudentHome />} />
+            <Route path="/register/form" element={<Register />} />
+
+            <Route path="/admin" element={<AdminHome />} />
+            <Route path="/admin/participantes" element={<Participants />} />
+            <Route path="/admin/generador" element={<Generator />} />
+            <Route path="/admin/dashboard" element={<Dashboard />} />
+          </Routes>
         </div>
       </main>
-    </>
+    </BrowserRouter>
   )
 }
 

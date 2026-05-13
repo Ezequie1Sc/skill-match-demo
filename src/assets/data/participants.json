@@ -1,37 +1,92 @@
 [
   {
     "id": 1,
-    "name": "Ahsly Berzunza",
-    "role": "Frontend",
+    "fullName": "hatsune miku",
     "career": "Ingeniería en Sistemas",
-    "skills": ["React", "UI", "Documentación", "Angular"]
+    "semester": 8,
+    "preferredRole": "Frontend",
+    "interests": ["React", "UI", "Documentación", "Angular"],
+    "skills": {
+      "frontend": 5,
+      "backend": 2,
+      "database": 2,
+      "uiDesign": 4,
+      "documentation": 4,
+      "presentation": 3,
+      "leadership": 3
+    },
+    "createdAt": "2026-05-13T00:00:00.000Z"
   },
   {
     "id": 2,
-    "name": "Carlos Ake",
-    "role": "Backend",
+    "fullName": "kasane teto",
     "career": "Ingeniería Informática",
-    "skills": ["APIs", "Base de datos", "Python"]
+    "semester": 8,
+    "preferredRole": "Backend",
+    "interests": ["APIs", "Base de datos", "Python"],
+    "skills": {
+      "frontend": 2,
+      "backend": 5,
+      "database": 5,
+      "uiDesign": 2,
+      "documentation": 3,
+      "presentation": 2,
+      "leadership": 3
+    },
+    "createdAt": "2026-05-13T00:00:00.000Z"
   },
   {
     "id": 3,
-    "name": "María Domínguez",
-    "role": "Documentación",
+    "fullName": "María Domínguez",
     "career": "Ingeniería en Informática",
-    "skills": ["Redacción", "Presentación", "Gestión"]
+    "semester": 8,
+    "preferredRole": "Documentación",
+    "interests": ["Redacción", "Presentación", "Gestión"],
+    "skills": {
+      "frontend": 2,
+      "backend": 2,
+      "database": 3,
+      "uiDesign": 3,
+      "documentation": 5,
+      "presentation": 5,
+      "leadership": 4
+    },
+    "createdAt": "2026-05-13T00:00:00.000Z"
   },
   {
     "id": 4,
-    "name": "Arturo Chi",
-    "role": "Bases de Datos",
+    "fullName": "six seven",
     "career": "Ingeniería en Sistemas",
-    "skills": ["Bases de Datos", "Presentación", "Documentación"]
+    "semester": 8,
+    "preferredRole": "Bases de Datos",
+    "interests": ["Bases de Datos", "Presentación", "Documentación"],
+    "skills": {
+      "frontend": 2,
+      "backend": 3,
+      "database": 5,
+      "uiDesign": 2,
+      "documentation": 4,
+      "presentation": 4,
+      "leadership": 3
+    },
+    "createdAt": "2026-05-13T00:00:00.000Z"
   },
   {
     "id": 5,
-    "name": "Ezequiel Salazar",
-    "role": "Frontend",
+    "fullName": "Ezequiel Salazar",
     "career": "Ingeniería en Sistemas",
-    "skills": ["Maquetado", "UI Design", "UX"]
+    "semester": 8,
+    "preferredRole": "Frontend",
+    "interests": ["Maquetado", "UI Design", "UX"],
+    "skills": {
+      "frontend": 5,
+      "backend": 2,
+      "database": 2,
+      "uiDesign": 5,
+      "documentation": 3,
+      "presentation": 3,
+      "leadership": 2
+    },
+    "createdAt": "2026-05-13T00:00:00.000Z"
   }
 ]
