@@ -1,0 +1,37 @@
+[
+  {
+    "id": 1,
+    "name": "Ahsly Berzunza",
+    "role": "Frontend",
+    "career": "Ingeniería en Sistemas",
+    "skills": ["React", "UI", "Documentación", "Angular"]
+  },
+  {
+    "id": 2,
+    "name": "Carlos Ake",
+    "role": "Backend",
+    "career": "Ingeniería Informática",
+    "skills": ["APIs", "Base de datos", "Python"]
+  },
+  {
+    "id": 3,
+    "name": "María Domínguez",
+    "role": "Documentación",
+    "career": "Ingeniería en Informática",
+    "skills": ["Redacción", "Presentación", "Gestión"]
+  },
+  {
+    "id": 4,
+    "name": "Arturo Chi",
+    "role": "Bases de Datos",
+    "career": "Ingeniería en Sistemas",
+    "skills": ["Bases de Datos", "Presentación", "Documentación"]
+  },
+  {
+    "id": 5,
+    "name": "Ezequiel Salazar",
+    "role": "Frontend",
+    "career": "Ingeniería en Sistemas",
+    "skills": ["Maquetado", "UI Design", "UX"]
+  }
+]

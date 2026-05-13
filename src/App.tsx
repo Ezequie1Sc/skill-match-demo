@@ -1,27 +1,29 @@
-import Navbar from "./components/NavBar"
+import { useState } from 'react'
+import NavBar from './components/Navbar'
+import Home from './pages/Home'
+import Participants from './pages/Participants'
+import Generator from './pages/Generator'
+import Dashboard from './pages/Dashboard'
 
+type Page = 'home' | 'participants' | 'generator' | 'dashboard'
 
 function App() {
+  const [currentPage, setCurrentPage] = useState<Page>('home')
+
   return (
     <>
-      <Navbar />
-      <main className="min-h-screen bg-slate-100 flex items-center justify-center">
-        <section className="rounded-2xl bg-white p-8 shadow-lg">
-          <h1 className="text-4xl font-bold text-indigo-600">
-            SkillMatch
-          </h1>
+      <NavBar currentPage={currentPage} onNavigate={setCurrentPage} />
 
-          <p className="mt-3 text-slate-600">
-            React + Tailwind funcionando correctamente.
-          </p>
-
-          <button className="mt-6 rounded-xl bg-indigo-600 px-5 py-2 font-semibold text-white hover:bg-indigo-700">
-            Empezar
-          </button>
-        </section>
+      <main className="min-h-screen bg-slate-100 px-6 py-10">
+        <div className="mx-auto max-w-6xl">
+          {currentPage === 'home' && <Home />}
+          {currentPage === 'participants' && <Participants />}
+          {currentPage === 'generator' && <Generator />}
+          {currentPage === 'dashboard' && <Dashboard />}
+        </div>
       </main>
     </>
   )
 }
 
-export default App;
+export default App
