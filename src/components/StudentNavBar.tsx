@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom'
 
-function Navbar() {
+function StudentNavbar() {
   const linkClass = ({ isActive }: { isActive: boolean }) =>
     isActive
       ? 'text-indigo-600 font-semibold'
@@ -9,25 +9,17 @@ function Navbar() {
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200 bg-white">
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        <NavLink to="/admin" className="text-xl font-bold text-indigo-600">
-          SkillMatch Admin
+        <NavLink to="/student" className="text-xl font-bold text-indigo-600">
+          SkillMatch
         </NavLink>
 
         <div className="flex gap-4 text-sm font-medium">
-          <NavLink to="/admin" end className={linkClass}>
+          <NavLink to="/student" end className={linkClass}>
             Inicio
           </NavLink>
 
-          <NavLink to="/admin/participants" className={linkClass}>
-            Participantes
-          </NavLink>
-
-          <NavLink to="/admin/generator" className={linkClass}>
-            Generador
-          </NavLink>
-
-          <NavLink to="/admin/dashboard" className={linkClass}>
-            Dashboard
+          <NavLink to="/registro" className={linkClass}>
+            Registro
           </NavLink>
         </div>
       </nav>
@@ -35,4 +27,4 @@ function Navbar() {
   )
 }
 
-export default Navbar
+export default StudentNavbar

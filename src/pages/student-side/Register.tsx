@@ -1,9 +1,9 @@
 import { useState } from "react"
-import type { Participant } from "../types/participant_model"
+import type { Participant } from "../../types/participant_model"
 import {
   getNextParticipantId,
   saveParticipant,
-} from '../utils/participantsStorage'
+} from '../../utils/participantsStorage'
 
 
 

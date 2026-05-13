@@ -1,7 +1,7 @@
 
 
-import participantsData from '../assets/data/participants.json'
-import type { Participant } from '../types/participant_model'
+import participantsData from '../../assets/data/participants.json'
+import type { Participant } from '../../types/participant_model'
 
 function Participants() {
   const participants = participantsData as Participant[];

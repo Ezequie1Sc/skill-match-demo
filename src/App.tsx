@@ -1,30 +1,33 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 
-import StudentHome from './pages/StudentHome'
-import AdminHome from './pages/AdminHome'
-import Register from './pages/Register'
-import Participants from './pages/Participants'
-import Generator from './pages/Generator'
-import Dashboard from './pages/Dashboard'
+import StudentLayout from './pages/StudentLayout'
+import StudentHome from './pages/student-side/StudentHome'
+import Register from './pages/student-side/Register'
+
+import AdminLayout from './pages/AdminLayout'
+import AdminHome from './pages//admin-side/AdminHome'
+import Participants from './pages//admin-side/Participants'
+import Generator from './pages//admin-side/Generator'
+import Dashboard from './pages//admin-side/Dashboard'
 
 function App() {
   return (
     <BrowserRouter>
-      <main className="min-h-screen bg-slate-100 px-6 py-10">
-        <div className="mx-auto max-w-6xl">
-          <Routes>
-            <Route path="/" element={<Navigate to="/student" />} />
+      <Routes>
+        <Route path="/" element={<Navigate to="/student" />} />
 
-            <Route path="/register" element={<StudentHome />} />
-            <Route path="/register/form" element={<Register />} />
+        <Route element={<StudentLayout />}>
+          <Route path="/register" element={<StudentHome />} />
+          <Route path="/register/form" element={<Register />} />
+        </Route>
 
-            <Route path="/admin" element={<AdminHome />} />
-            <Route path="/admin/participantes" element={<Participants />} />
-            <Route path="/admin/generador" element={<Generator />} />
-            <Route path="/admin/dashboard" element={<Dashboard />} />
-          </Routes>
-        </div>
-      </main>
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminHome />} />
+          <Route path="participants" element={<Participants />} />
+          <Route path="generator" element={<Generator />} />
+          <Route path="dashboard" element={<Dashboard />} />
+        </Route>
+      </Routes>
     </BrowserRouter>
   )
 }
