@@ -1,5 +1,11 @@
 import { useState } from "react"
 import type { Participant } from "../types/participant_model"
+import {
+  getNextParticipantId,
+  saveParticipant,
+} from '../utils/participantsStorage'
+
+
 
 type RegisterFormData = {
     fullName: string
@@ -54,7 +60,7 @@ function Register() {
     event.preventDefault()
 
     const participant: Participant = {
-      id: Date.now(),
+      id: getNextParticipantId(),
       fullName: formData.fullName,
       career: formData.career,
       semester: Number(formData.semester),
@@ -74,6 +80,9 @@ function Register() {
       },
       createdAt: new Date().toISOString(),
     }
+
+    saveParticipant(participant)
+
 
     const savedParticipants = JSON.parse(
       localStorage.getItem('participants') ?? '[]',
