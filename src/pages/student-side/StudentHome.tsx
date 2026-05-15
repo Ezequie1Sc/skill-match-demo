@@ -19,7 +19,7 @@ function StudentHome() {
 
        <div className="mt-8 flex gap-4">
         <Link
-          to="/register/form"
+          to="/landing/register"
           className="rounded-xl bg-indigo-600 px-5 py-3 font-semibold text-white transition hover:bg-indigo-700"
         >
           Registro en línea

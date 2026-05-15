@@ -14,11 +14,11 @@ function StudentNavbar() {
         </NavLink>
 
         <div className="flex gap-4 text-sm font-medium">
-          <NavLink to="/student" end className={linkClass}>
+          <NavLink to="/landing-page" end className={linkClass}>
             Inicio
           </NavLink>
 
-          <NavLink to="/registro" className={linkClass}>
+          <NavLink to="/landing/register" className={linkClass}>
             Registro
           </NavLink>
         </div>

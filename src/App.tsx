@@ -14,11 +14,11 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to="/student" />} />
+        <Route path="/" element={<Navigate to="/landing-page" />} />
 
         <Route element={<StudentLayout />}>
-          <Route path="/register" element={<StudentHome />} />
-          <Route path="/register/form" element={<Register />} />
+          <Route path="/landing-page" element={<StudentHome />} />
+          <Route path="//landing/register" element={<Register />} />
         </Route>
 
         <Route path="/admin" element={<AdminLayout />}>
