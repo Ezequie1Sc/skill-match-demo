@@ -4,6 +4,7 @@ import {
   getNextParticipantId,
   saveParticipant,
 } from '../../utils/participantsStorage'
+import type { JSX } from "react/jsx-runtime"
 
 
 
@@ -77,6 +78,9 @@ function Register() {
         documentation: Number(formData.documentation),
         presentation: Number(formData.presentation),
         leadership: Number(formData.leadership),
+        map: function (arg0: (skill: any) => JSX.Element): import("react").ReactNode {
+          throw new Error("Function not implemented.")
+        }
       },
       createdAt: new Date().toISOString(),
     }

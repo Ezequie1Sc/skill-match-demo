@@ -1,3 +1,5 @@
+import type { JSX } from "react/jsx-runtime"
+
 export type Participant = {
     id: number
     fullName: string
@@ -10,6 +12,7 @@ export type Participant = {
 }
 
 export type SkillSet = {
+    map(arg0: (skill: any) => JSX.Element): import("react").ReactNode
     frontend: number
     backend: number
     database: number
