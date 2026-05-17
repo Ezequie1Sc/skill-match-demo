@@ -590,4 +590,24 @@
     width: 38px !important;
     height: 38px !important;
   }
+  html {
+  scroll-behavior: smooth;
+}
+/* ─── FIX PARA HERO TEXT ─────────────────────────────────────────────── */
+.hero-content-grid h1 .block {
+  display: block;
+  width: 100%;
+}
+
+.hero-content-grid h1 span:last-child {
+  margin-top: 8px;
+  line-height: 1.4;
+  padding-left: 2px; /* Pequeño espacio extra */
+}
+
+/* Para asegurar que "y deja..." se vea bien */
+.hero-content-grid h1 span:last-child {
+  color: #5A6A85;
+  font-weight: 400;
+}
 }

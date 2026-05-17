@@ -257,29 +257,29 @@ function StudentHome() {
       </div>
 
       <h1 className="font-display" style={{ 
-        fontSize: 'clamp(38px, 4vw, 56px)', 
-        lineHeight: 1.05, 
-        letterSpacing: '-0.03em', 
-        color: '#050A14', 
-        marginBottom: 8 
-      }}>
-        <span className={`block hero-title hero-title-d2 ${heroVisible ? 'show' : ''}`}>
-          Forma equipos
-        </span>
-        <span className={`block hero-title hero-title-d3 ${heroVisible ? 'show' : ''}`} style={{ color: '#0085FF' }}>
-          inteligentes
-        </span>
-        <span className={`block hero-title hero-title-d4 ${heroVisible ? 'show' : ''}`} style={{ 
-          fontSize: 16, 
-          fontFamily: "'Outfit', sans-serif", 
-          fontWeight: 400, 
-          color: '#5A6A85', 
-          marginTop: 8 
-        }}>
-          y deja de trabajar al azar
-        </span>
-      </h1>
-
+  fontSize: 'clamp(38px, 4vw, 56px)', 
+  lineHeight: 1.05, 
+  letterSpacing: '-0.03em', 
+  color: '#050A14', 
+  marginBottom: 8 
+}}>
+  <span className={`block hero-title hero-title-d2 ${heroVisible ? 'show' : ''}`}>
+    Forma equipos
+  </span>
+  <span className={`block hero-title hero-title-d3 ${heroVisible ? 'show' : ''}`} style={{ color: '#0085FF' }}>
+    inteligentes
+  </span>
+  <span className={`block hero-title hero-title-d4 ${heroVisible ? 'show' : ''}`} style={{ 
+    fontSize: 18, 
+    fontFamily: "'Outfit', sans-serif", 
+    fontWeight: 400, 
+    color: '#5A6A85', 
+    marginTop: 12,
+    letterSpacing: '0.02em'
+  }}>
+    y deja de trabajar al azar
+  </span>
+</h1>
       <p className={`hero-title hero-title-d5 ${heroVisible ? 'show' : ''}`} style={{ 
         fontSize: 15, 
         color: '#5A6A85', 
@@ -303,9 +303,7 @@ function StudentHome() {
           </svg>
           Crear cuenta gratis
         </Link>
-
-        <Link to="/login" className="btn-ghost">
-          Iniciar sesión
+<Link to="/student-side/login" className="btn-ghost">          Iniciar sesión
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
