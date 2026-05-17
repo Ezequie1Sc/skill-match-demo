@@ -25,7 +25,7 @@ function App() {
         <Route element={<StudentLayout />}>
           <Route path="/landing-page" element={<StudentHome />} />
           <Route path="/landing/register" element={<Register />} /> {/* 🔥 FIX */}
-          <Route path="/login" element={<Login />} /> {/* 🔥 ESTA FALTABA */}
+          <Route path="/login" element={<Login />} /> 
         </Route>
 
         {/* ─── ADMIN ROUTES ───────────────────── */}

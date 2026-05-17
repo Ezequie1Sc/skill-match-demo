@@ -150,7 +150,7 @@ function StudentNavbar() {
             {/* BOTONES */}
             <div className="mt-auto flex flex-col gap-3">
               <Link
-                to="/student-side/login"
+                to="/login"
                 onClick={() => setIsMenuOpen(false)}
                 className="flex items-center justify-center gap-2 border border-white/30 text-white py-2 rounded"
               >
