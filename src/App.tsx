@@ -6,6 +6,7 @@ import StudentHome from './pages/student-side/StudentHome'
 import Register from './pages/student-side/Register'
 import Login from './pages/student-side/login' 
 
+
 // ─── ADMIN ───────────────────────────────────────
 import AdminLayout from './pages/AdminLayout'
 import AdminHome from './pages/admin-side/AdminHome'
@@ -24,8 +25,9 @@ function App() {
         {/* ─── STUDENT ROUTES ─────────────────── */}
         <Route element={<StudentLayout />}>
           <Route path="/landing-page" element={<StudentHome />} />
-          <Route path="/landing/register" element={<Register />} /> {/* 🔥 FIX */}
+          <Route path="/landing/register" element={<Register />} /> 
           <Route path="/login" element={<Login />} /> 
+          
         </Route>
 
         {/* ─── ADMIN ROUTES ───────────────────── */}
@@ -34,6 +36,11 @@ function App() {
           <Route path="participants" element={<Participants />} />
           <Route path="generator" element={<Generator />} />
           <Route path="dashboard" element={<Dashboard />} />
+        </Route>
+
+        {/* RUTAS DE LOS USUARIOS*/}
+        <Route path='/user' element={<></>}>
+
         </Route>
 
       </Routes>

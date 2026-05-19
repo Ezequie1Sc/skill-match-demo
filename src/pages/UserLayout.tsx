@@ -1,10 +1,11 @@
 import { Outlet } from 'react-router-dom'
-import AdminNavbar from '../components/AdminNavBar'
+import StudentNavbar from '../components/StudentNavBar'
 
-function AdminLayout() {
+function UserLayout() {
   return (
     <>
-      <AdminNavbar />
+      <StudentNavbar />
+
       <main className="min-h-screen bg-slate-100 px-6 py-10">
         <div className="mx-auto max-w-6xl">
           <Outlet />
@@ -14,4 +15,4 @@ function AdminLayout() {
   )
 }
 
-export default AdminLayout
+export default UserLayout

@@ -285,6 +285,9 @@ function Register() {
                     <option value="Ingeniería en Software">
                       Ingeniería en Software
                     </option>
+                    <option value="Ingeniería en Mecatrónica">
+                      Ingeniería en Mecatrónica
+                    </option>
                   </select>
                   {getErrorMessage('career') && (
                     <p className="mt-1.5 text-xs text-red-500 flex items-center gap-1">

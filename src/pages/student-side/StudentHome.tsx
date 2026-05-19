@@ -78,10 +78,10 @@ function useInView(threshold = 0.15) {
 }
 
 const metrics = [
-  { value: "+2,500", label: "Usuarios activos" },
-  { value: "94%", label: "Efectividad" },
-  { value: "+1,200", label: "Equipos creados" },
-  { value: "98%", label: "Satisfacción" },
+  { value: "0", label: "Usuarios activos" },
+  { value: "0%", label: "Efectividad" },
+  { value: "0", label: "Equipos creados" },
+  { value: "0", label: "Satisfacción" },
 ]
 
 const problems = [
