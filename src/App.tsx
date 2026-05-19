@@ -1,5 +1,8 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 
+//import TestSupabase from './testSupaBase'
+
+
 // ─── STUDENT ─────────────────────────────────────
 import StudentLayout from './pages/StudentLayout'
 import StudentHome from './pages/student-side/StudentHome'
@@ -21,6 +24,8 @@ function App() {
 
         {/* ─── REDIRECT ───────────────────────── */}
         <Route path="/" element={<Navigate to="/landing-page" />} />
+
+        {/*<Route path="/test-supabase" element={<TestSupabase />} /> */}
 
         {/* ─── STUDENT ROUTES ─────────────────── */}
         <Route element={<StudentLayout />}>
