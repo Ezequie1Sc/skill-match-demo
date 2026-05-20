@@ -401,8 +401,10 @@ function AdminHome() {
                   heroVisible ? "show" : ""
                 }`}
               >
-                <span className="dot" />
+              {/* 
+              <span className="dot" />
                 Panel del administrador
+                */}
               </div>
 
               <h1
@@ -420,7 +422,7 @@ function AdminHome() {
                     heroVisible ? "show" : ""
                   }`}
                 >
-                  Administra eventos
+                  Panel de
                 </span>
 
                 <span
@@ -429,7 +431,7 @@ function AdminHome() {
                   }`}
                   style={{ color: "#0085FF" }}
                 >
-                  y forma equipos
+                  Administrador
                 </span>
 
                 <span
@@ -445,7 +447,7 @@ function AdminHome() {
                     letterSpacing: "0.02em",
                   }}
                 >
-                  desde una vista inteligente
+                  {/*desde una vista inteligente*/}
                 </span>
               </h1>
 
@@ -606,6 +608,10 @@ function AdminHome() {
               width: "100%",
             }}
           >
+              
+            {/*
+
+            
             <div className="ticker-track">
               {[...Array(2)].map((_, r) =>
                 [
@@ -642,6 +648,7 @@ function AdminHome() {
                 ))
               )}
             </div>
+            */}
           </div>
         </section>
 
@@ -678,7 +685,7 @@ function AdminHome() {
                   marginBottom: 12,
                 }}
               >
-                Perfiles disponibles para formar equipos
+                Perfiles registrados
               </h2>
 
               <p
@@ -689,8 +696,7 @@ function AdminHome() {
                   lineHeight: 1.6,
                 }}
               >
-                Esta información se obtiene directamente de la tabla de
-                participantes registrada en Supabase.
+                Lista de estudiantes registrados
               </p>
             </div>
 
@@ -782,166 +788,6 @@ function AdminHome() {
         </section>
 
         <section
-          id="categorias"
-          style={{
-            background: "#FFFFFF",
-            padding: "80px 32px",
-            width: "100%",
-            scrollMarginTop: 80,
-          }}
-        >
-          <div
-            style={{ maxWidth: 1200, margin: "0 auto" }}
-            ref={categoriesSection.ref}
-          >
-            <div
-              className={`reveal ${
-                categoriesSection.inView ? "visible" : ""
-              }`}
-              style={{ textAlign: "center", marginBottom: 44 }}
-            >
-              <div className="section-label" style={{ justifyContent: "center" }}>
-                <span className="dot" />
-                Categorías
-              </div>
-
-              <h2
-                className="font-display"
-                style={{
-                  fontSize: "clamp(28px, 3vw, 40px)",
-                  lineHeight: 1.1,
-                  letterSpacing: "-0.03em",
-                  color: "#050A14",
-                }}
-              >
-                Disciplinas y habilidades personalizables
-              </h2>
-
-              <p
-                style={{
-                  fontSize: 15,
-                  color: "#5A6A85",
-                  maxWidth: 560,
-                  margin: "16px auto 0",
-                  lineHeight: 1.6,
-                }}
-              >
-                El administrador puede registrar disciplinas y definir las
-                habilidades que serán consideradas en cada evento.
-              </p>
-
-              <button
-                onClick={() => setShowCategoryForm(!showCategoryForm)}
-                className="btn-primary"
-                style={{ marginTop: 24, border: "none", cursor: "pointer" }}
-              >
-                {showCategoryForm ? "Cancelar" : "Crear categoría"}
-              </button>
-            </div>
-
-            {showCategoryForm && (
-              <form
-                onSubmit={handleCreateCategory}
-                style={{
-                  marginBottom: 36,
-                  background: "#F7FAFF",
-                  border: "1px solid #E4EAF2",
-                  borderRadius: 20,
-                  padding: 24,
-                  display: "grid",
-                  gap: 16,
-                }}
-              >
-                <input
-                  name="name"
-                  value={categoryForm.name}
-                  onChange={handleCategoryChange}
-                  required
-                  placeholder="Nombre de la categoría"
-                  style={inputStyle}
-                />
-
-                <textarea
-                  name="description"
-                  value={categoryForm.description}
-                  onChange={handleCategoryChange}
-                  required
-                  rows={3}
-                  placeholder="Descripción"
-                  style={inputStyle}
-                />
-
-                <input
-                  name="skills"
-                  value={categoryForm.skills}
-                  onChange={handleCategoryChange}
-                  required
-                  placeholder="Habilidades separadas por comas"
-                  style={inputStyle}
-                />
-
-                <button type="submit" className="btn-primary" style={buttonReset}>
-                  Guardar categoría
-                </button>
-              </form>
-            )}
-
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(4, 1fr)",
-                gap: 18,
-              }}
-            >
-              {categories.map((category, i) => (
-                <article
-                  key={category.id}
-                  className={`feat-card reveal reveal-d${i + 1} ${
-                    categoriesSection.inView ? "visible" : ""
-                  }`}
-                >
-                  <h3
-                    style={{
-                      fontSize: 16,
-                      fontWeight: 700,
-                      color: "#050A14",
-                    }}
-                  >
-                    {category.name}
-                  </h3>
-
-                  <p
-                    style={{
-                      fontSize: 13,
-                      color: "#5A6A85",
-                      lineHeight: 1.55,
-                      marginTop: 10,
-                    }}
-                  >
-                    {category.description}
-                  </p>
-
-                  <div
-                    style={{
-                      display: "flex",
-                      flexWrap: "wrap",
-                      gap: 6,
-                      marginTop: 16,
-                    }}
-                  >
-                    {category.skills?.map((skill) => (
-                      <span key={skill} className="tag-pill">
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section
           id="eventos"
           style={{
             background: "#F7FAFF",
@@ -970,7 +816,7 @@ function AdminHome() {
                   marginBottom: 12,
                 }}
               >
-                Eventos registrados por el administrador
+                Eventos Registrados
               </h2>
 
               <p
@@ -1181,6 +1027,169 @@ function AdminHome() {
           </div>
         </section>
 
+
+        <section
+          id="categorias"
+          style={{
+            background: "#FFFFFF",
+            padding: "80px 32px",
+            width: "100%",
+            scrollMarginTop: 80,
+          }}
+        >
+          <div
+            style={{ maxWidth: 1200, margin: "0 auto" }}
+            ref={categoriesSection.ref}
+          >
+            <div
+              className={`reveal ${
+                categoriesSection.inView ? "visible" : ""
+              }`}
+              style={{ textAlign: "center", marginBottom: 44 }}
+            >
+              <div className="section-label" style={{ justifyContent: "center" }}>
+                <span className="dot" />
+                Categorías
+              </div>
+
+              <h2
+                className="font-display"
+                style={{
+                  fontSize: "clamp(28px, 3vw, 40px)",
+                  lineHeight: 1.1,
+                  letterSpacing: "-0.03em",
+                  color: "#050A14",
+                }}
+              >
+                Categorías Registradas
+              </h2>
+
+              <p
+                style={{
+                  fontSize: 15,
+                  color: "#5A6A85",
+                  maxWidth: 560,
+                  margin: "16px auto 0",
+                  lineHeight: 1.6,
+                }}
+              >
+                Categorías de los eventos registrados
+              </p>
+
+              <button
+                onClick={() => setShowCategoryForm(!showCategoryForm)}
+                className="btn-primary"
+                style={{ marginTop: 24, border: "none", cursor: "pointer" }}
+              >
+                {showCategoryForm ? "Cancelar" : "Crear categoría"}
+              </button>
+            </div>
+
+            {showCategoryForm && (
+              <form
+                onSubmit={handleCreateCategory}
+                style={{
+                  marginBottom: 36,
+                  background: "#F7FAFF",
+                  border: "1px solid #E4EAF2",
+                  borderRadius: 20,
+                  padding: 24,
+                  display: "grid",
+                  gap: 16,
+                }}
+              >
+                <input
+                  name="name"
+                  value={categoryForm.name}
+                  onChange={handleCategoryChange}
+                  required
+                  placeholder="Nombre de la categoría"
+                  style={inputStyle}
+                />
+
+                <textarea
+                  name="description"
+                  value={categoryForm.description}
+                  onChange={handleCategoryChange}
+                  required
+                  rows={3}
+                  placeholder="Descripción"
+                  style={inputStyle}
+                />
+
+                <input
+                  name="skills"
+                  value={categoryForm.skills}
+                  onChange={handleCategoryChange}
+                  required
+                  placeholder="Habilidades separadas por comas"
+                  style={inputStyle}
+                />
+
+                <button type="submit" className="btn-primary" style={buttonReset}>
+                  Guardar categoría
+                </button>
+              </form>
+            )}
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(4, 1fr)",
+                gap: 18,
+              }}
+            >
+              {categories.map((category, i) => (
+                <article
+                  key={category.id}
+                  className={`feat-card reveal reveal-d${i + 1} ${
+                    categoriesSection.inView ? "visible" : ""
+                  }`}
+                >
+                  <h3
+                    style={{
+                      fontSize: 16,
+                      fontWeight: 700,
+                      color: "#050A14",
+                    }}
+                  >
+                    {category.name}
+                  </h3>
+
+                  <p
+                    style={{
+                      fontSize: 13,
+                      color: "#5A6A85",
+                      lineHeight: 1.55,
+                      marginTop: 10,
+                    }}
+                  >
+                    {category.description}
+                  </p>
+
+                  <div
+                    style={{
+                      display: "flex",
+                      flexWrap: "wrap",
+                      gap: 6,
+                      marginTop: 16,
+                    }}
+                  >
+                    {category.skills?.map((skill) => (
+                      <span key={skill} className="tag-pill">
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        
+
+        {/** 
         <section
           id="generador"
           style={{
@@ -1355,6 +1364,7 @@ function AdminHome() {
             </div>
           </div>
         </section>
+        */}
       </div>
     </>
   )
