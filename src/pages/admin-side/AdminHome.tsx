@@ -1,99 +1,88 @@
-import { Link } from "react-router-dom"
+// pages/AdminHome.tsx
+
 import { useEffect, useRef, useState } from "react"
+import type { ChangeEvent, FormEvent } from "react"
 import AdminNavbar from "../../components/AdminNavBar"
+import { supabase } from "../../database/supabaseClient"
 import "../student-side/StudentHome.css"
 
-const adminMetrics = [
-  { value: "24", label: "Estudiantes registrados" },
-  { value: "7", label: "Categorías" },
-  { value: "4", label: "Eventos disponibles" },
-  { value: "6", label: "Equipos generados" },
-]
+type Participant = {
+  id: number
+  full_name: string
+  career: string
+  semester: number
+  preferred_role: string
+  interests: string[]
+  frontend: number
+  backend: number
+  database_design: number
+  ui_design: number
+  documentation: number
+  presentation: number
+  leadership: number
+  events?: {
+    id: number
+    name: string
+  } | null
+}
 
-const students = [
-  {
-    name: "Sofía Ramírez",
-    career: "Ingeniería en Sistemas",
-    semester: "8° semestre",
-    event: "Hackathon Web 2026",
-    role: "Frontend",
-    skills: ["React", "UI", "Documentación"],
-  },
-  {
-    name: "Daniel Torres",
-    career: "Ingeniería Informática",
-    semester: "8° semestre",
-    event: "Hackathon Web 2026",
-    role: "Backend",
-    skills: ["APIs", "PostgreSQL", "Python"],
-  },
-  {
-    name: "Valeria Cruz",
-    career: "Ingeniería en Sistemas",
-    semester: "6° semestre",
-    event: "Concurso de Programación",
-    role: "Algoritmos",
-    skills: ["Lógica", "Estructuras", "C++"],
-  },
-  {
-    name: "Luis Herrera",
-    career: "Ingeniería Informática",
-    semester: "8° semestre",
-    event: "Reto de Ciberseguridad",
-    role: "Redes",
-    skills: ["Linux", "Redes", "Seguridad"],
-  },
-]
+type Category = {
+  id: number
+  name: string
+  description: string | null
+  skills: string[]
+}
 
-const categories = [
-  {
-    name: "Desarrollo Web",
-    desc: "Proyectos frontend, backend, bases de datos y diseño de interfaces.",
-    skills: ["Frontend", "Backend", "Base de datos", "UI/UX"],
-  },
-  {
-    name: "Programación Competitiva",
-    desc: "Retos de lógica, algoritmos, estructuras de datos y resolución de problemas.",
-    skills: ["Algoritmos", "Estructuras", "Matemáticas"],
-  },
-  {
-    name: "Ciberseguridad",
-    desc: "Eventos enfocados en redes, seguridad informática y análisis de vulnerabilidades.",
-    skills: ["Redes", "Linux", "Seguridad", "Análisis"],
-  },
-  {
-    name: "Innovación / Emprendimiento",
-    desc: "Equipos orientados a propuestas, pitch, liderazgo y modelo de negocio.",
-    skills: ["Pitch", "Liderazgo", "Marketing", "Gestión"],
-  },
-]
+type EventItem = {
+  id: number
+  name: string
+  description: string | null
+  event_date: string | null
+  modality: string | null
+  location: string | null
+  team_size: number
+  status: string
+  category_id: number | null
+  categories?: {
+    id: number
+    name: string
+    skills: string[]
+  } | null
+}
 
-const events = [
-  {
-    name: "Hackathon Web 2026",
-    category: "Desarrollo Web",
-    date: "27 de mayo",
-    participants: 12,
-    status: "Abierto",
-    skills: ["Frontend", "Backend", "UI/UX", "Base de datos"],
-  },
-  {
-    name: "Concurso de Programación",
-    category: "Programación Competitiva",
-    date: "30 de mayo",
-    participants: 8,
-    status: "Próximamente",
-    skills: ["Algoritmos", "Estructuras", "Lógica"],
-  },
-  {
-    name: "Reto de Ciberseguridad",
-    category: "Ciberseguridad",
-    date: "5 de junio",
-    participants: 6,
-    status: "Abierto",
-    skills: ["Redes", "Linux", "Análisis", "Seguridad"],
-  },
-]
+type CategoryFormData = {
+  name: string
+  description: string
+  skills: string
+}
+
+type EventFormData = {
+  name: string
+  categoryId: string
+  description: string
+  eventDate: string
+  modality: string
+  location: string
+  teamSize: string
+  status: string
+}
+
+const initialCategoryForm: CategoryFormData = {
+  name: "",
+  description: "",
+  skills: "",
+}
+
+const initialEventForm: EventFormData = {
+  name: "",
+  categoryId: "",
+  description: "",
+  eventDate: "",
+  modality: "Presencial",
+  location: "",
+  teamSize: "4",
+  status: "Abierto",
+}
 
 const generatedTeams = [
   {
@@ -132,6 +121,20 @@ function useInView(threshold = 0.15) {
 }
 
 function AdminHome() {
+  const [participants, setParticipants] = useState<Participant[]>([])
+  const [categories, setCategories] = useState<Category[]>([])
+  const [events, setEvents] = useState<EventItem[]>([])
+
+  const [categoryForm, setCategoryForm] =
+    useState<CategoryFormData>(initialCategoryForm)
+
+  const [eventForm, setEventForm] =
+    useState<EventFormData>(initialEventForm)
+
+  const [showCategoryForm, setShowCategoryForm] = useState(false)
+  const [showEventForm, setShowEventForm] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [message, setMessage] = useState("")
   const [heroVisible, setHeroVisible] = useState(false)
 
   const hero = useInView(0.01)
@@ -144,6 +147,186 @@ function AdminHome() {
     const t = setTimeout(() => setHeroVisible(true), 80)
     return () => clearTimeout(t)
   }, [])
+
+  useEffect(() => {
+    loadAdminData()
+  }, [])
+
+  async function loadAdminData() {
+    try {
+      setLoading(true)
+      setMessage("")
+
+      const [participantsResponse, categoriesResponse, eventsResponse] =
+        await Promise.all([
+          supabase
+            .from("participants")
+            .select(`
+              *,
+              events (
+                id,
+                name
+              )
+            `)
+            .order("id", { ascending: true }),
+
+          supabase
+            .from("categories")
+            .select("*")
+            .order("id", { ascending: true }),
+
+          supabase
+            .from("events")
+            .select(`
+              *,
+              categories (
+                id,
+                name,
+                skills
+              )
+            `)
+            .order("id", { ascending: true }),
+        ])
+
+      if (participantsResponse.error) {
+        throw participantsResponse.error
+      }
+
+      if (categoriesResponse.error) {
+        throw categoriesResponse.error
+      }
+
+      if (eventsResponse.error) {
+        throw eventsResponse.error
+      }
+
+      setParticipants((participantsResponse.data ?? []) as Participant[])
+      setCategories((categoriesResponse.data ?? []) as Category[])
+      setEvents((eventsResponse.data ?? []) as EventItem[])
+    } catch (error) {
+      console.error("Error al cargar datos del administrador:", error)
+      setMessage("No se pudieron cargar los datos desde Supabase.")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  function handleCategoryChange(
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) {
+    const { name, value } = event.target
+
+    setCategoryForm({
+      ...categoryForm,
+      [name]: value,
+    })
+  }
+
+  function handleEventChange(
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+  ) {
+    const { name, value } = event.target
+
+    setEventForm({
+      ...eventForm,
+      [name]: value,
+    })
+  }
+
+  async function handleCreateCategory(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+
+    try {
+      const skills = categoryForm.skills
+        .split(",")
+        .map((skill) => skill.trim())
+        .filter((skill) => skill !== "")
+
+      const { error } = await supabase.from("categories").insert({
+        name: categoryForm.name.trim(),
+        description: categoryForm.description.trim(),
+        skills,
+      })
+
+      if (error) {
+        throw error
+      }
+
+      setCategoryForm(initialCategoryForm)
+      setShowCategoryForm(false)
+      setMessage("Categoría creada correctamente.")
+      await loadAdminData()
+    } catch (error) {
+      console.error("Error al crear categoría:", error)
+      setMessage("No se pudo crear la categoría.")
+    }
+  }
+
+  async function handleCreateEvent(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+
+    try {
+      const { error } = await supabase.from("events").insert({
+        name: eventForm.name.trim(),
+        category_id: Number(eventForm.categoryId),
+        description: eventForm.description.trim(),
+        event_date: eventForm.eventDate,
+        modality: eventForm.modality,
+        location: eventForm.location.trim(),
+        team_size: Number(eventForm.teamSize),
+        status: eventForm.status,
+      })
+
+      if (error) {
+        throw error
+      }
+
+      setEventForm(initialEventForm)
+      setShowEventForm(false)
+      setMessage("Evento creado correctamente.")
+      await loadAdminData()
+    } catch (error) {
+      console.error("Error al crear evento:", error)
+      setMessage("No se pudo crear el evento.")
+    }
+  }
+
+  function getSkillsAverage(participant: Participant) {
+    const values = [
+      participant.frontend,
+      participant.backend,
+      participant.database_design,
+      participant.ui_design,
+      participant.documentation,
+      participant.presentation,
+      participant.leadership,
+    ]
+
+    const average =
+      values.reduce((sum, value) => sum + Number(value ?? 0), 0) /
+      values.length
+
+    return average.toFixed(1)
+  }
+
+  const metrics = [
+    {
+      value: String(participants.length),
+      label: "Estudiantes registrados",
+    },
+    {
+      value: String(categories.length),
+      label: "Categorías",
+    },
+    {
+      value: String(events.length),
+      label: "Eventos disponibles",
+    },
+    {
+      value: String(generatedTeams.length),
+      label: "Equipos generados",
+    },
+  ]
 
   return (
     <>
@@ -159,7 +342,6 @@ function AdminHome() {
           padding: 0,
         }}
       >
-        {/* HERO ADMIN */}
         <section
           id="admin-inicio"
           ref={hero.ref}
@@ -284,6 +466,22 @@ function AdminHome() {
                 acuerdo con las habilidades requeridas.
               </p>
 
+              {message && (
+                <p
+                  style={{
+                    marginTop: 18,
+                    padding: "12px 14px",
+                    borderRadius: 12,
+                    background: "#F7FAFF",
+                    color: "#0085FF",
+                    fontSize: 13,
+                    fontWeight: 700,
+                  }}
+                >
+                  {message}
+                </p>
+              )}
+
               <div
                 className={`hero-title hero-title-d6 ${
                   heroVisible ? "show" : ""
@@ -299,8 +497,8 @@ function AdminHome() {
                   Ver estudiantes
                 </a>
 
-                <a href="#generador" className="btn-ghost">
-                  Generar equipos
+                <a href="#eventos" className="btn-ghost">
+                  Ver eventos
                 </a>
               </div>
 
@@ -315,8 +513,8 @@ function AdminHome() {
                   borderTop: "1px solid #E4EAF2",
                 }}
               >
-                {adminMetrics.map((m, i) => (
-                  <div key={i} className="stat-line">
+                {metrics.map((metric) => (
+                  <div key={metric.label} className="stat-line">
                     <p
                       className="font-display"
                       style={{
@@ -325,7 +523,7 @@ function AdminHome() {
                         color: "#0085FF",
                       }}
                     >
-                      {m.value}
+                      {loading ? "..." : metric.value}
                     </p>
                     <p
                       style={{
@@ -334,7 +532,7 @@ function AdminHome() {
                         marginTop: 3,
                       }}
                     >
-                      {m.label}
+                      {metric.label}
                     </p>
                   </div>
                 ))}
@@ -403,8 +601,6 @@ function AdminHome() {
           <div
             className="ticker-wrap"
             style={{
-              borderTop: "1px solid rgba(255,255,255,0.2)",
-              borderBottom: "1px solid rgba(255,255,255,0.2)",
               padding: "14px 0",
               background: "#0085FF",
               width: "100%",
@@ -419,7 +615,7 @@ function AdminHome() {
                   "Equipos balanceados",
                   "Dashboard administrativo",
                   "Matching inteligente",
-                ].map((t, i) => (
+                ].map((text, i) => (
                   <span
                     key={`${r}-${i}`}
                     style={{
@@ -441,7 +637,7 @@ function AdminHome() {
                     >
                       ✦
                     </span>
-                    {t}
+                    {text}
                   </span>
                 ))
               )}
@@ -449,7 +645,6 @@ function AdminHome() {
           </div>
         </section>
 
-        {/* ESTUDIANTES */}
         <section
           id="estudiantes"
           style={{
@@ -494,8 +689,8 @@ function AdminHome() {
                   lineHeight: 1.6,
                 }}
               >
-                El administrador puede consultar participantes, intereses,
-                evento seleccionado, rol preferido y habilidades principales.
+                Esta información se obtiene directamente de la tabla de
+                participantes registrada en Supabase.
               </p>
             </div>
 
@@ -508,61 +703,84 @@ function AdminHome() {
                 background: "#FFFFFF",
               }}
             >
-              {students.map((student, i) => (
-                <div
-                  key={student.name}
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "1.2fr 1fr 1fr 1fr",
-                    gap: 20,
-                    padding: "18px 22px",
-                    borderTop: i ? "1px solid #E4EAF2" : "none",
-                    alignItems: "center",
-                  }}
-                >
-                  <div>
-                    <p
-                      style={{
-                        fontSize: 15,
-                        fontWeight: 700,
-                        color: "#050A14",
-                      }}
-                    >
-                      {student.name}
-                    </p>
-                    <p
-                      style={{
-                        fontSize: 12,
-                        color: "#5A6A85",
-                        marginTop: 3,
-                      }}
-                    >
-                      {student.career} · {student.semester}
-                    </p>
-                  </div>
-
-                  <p style={{ fontSize: 13, color: "#5A6A85" }}>
-                    {student.event}
-                  </p>
-
-                  <span className="tag-pill" style={{ width: "fit-content" }}>
-                    {student.role}
-                  </span>
-
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
-                    {student.skills.map((skill) => (
-                      <span key={skill} className="tag-pill">
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
+              {participants.length === 0 ? (
+                <div style={{ padding: 28, color: "#5A6A85" }}>
+                  No hay estudiantes registrados.
                 </div>
-              ))}
+              ) : (
+                participants.map((student, i) => (
+                  <div
+                    key={student.id}
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1.2fr 1fr 1fr 1fr",
+                      gap: 20,
+                      padding: "18px 22px",
+                      borderTop: i ? "1px solid #E4EAF2" : "none",
+                      alignItems: "center",
+                    }}
+                  >
+                    <div>
+                      <p
+                        style={{
+                          fontSize: 15,
+                          fontWeight: 700,
+                          color: "#050A14",
+                        }}
+                      >
+                        {student.full_name}
+                      </p>
+                      <p
+                        style={{
+                          fontSize: 12,
+                          color: "#5A6A85",
+                          marginTop: 3,
+                        }}
+                      >
+                        {student.career} · {student.semester}° semestre
+                      </p>
+                    </div>
+
+                    <p style={{ fontSize: 13, color: "#5A6A85" }}>
+                      {student.events?.name ?? "Sin evento"}
+                    </p>
+
+                    <span className="tag-pill" style={{ width: "fit-content" }}>
+                      {student.preferred_role}
+                    </span>
+
+                    <div>
+                      <p
+                        style={{
+                          fontSize: 12,
+                          color: "#5A6A85",
+                          marginBottom: 6,
+                        }}
+                      >
+                        Promedio: {getSkillsAverage(student)}/5
+                      </p>
+
+                      <div
+                        style={{
+                          display: "flex",
+                          flexWrap: "wrap",
+                          gap: 5,
+                        }}
+                      >
+                        {student.interests?.slice(0, 3).map((interest) => (
+                          <span key={interest} className="tag-pill">
+                            {interest}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </section>
 
-        {/* CATEGORÍAS */}
         <section
           id="categorias"
           style={{
@@ -608,11 +826,65 @@ function AdminHome() {
                   lineHeight: 1.6,
                 }}
               >
-                SkillMatch no se limita a software. El organizador puede
-                trabajar con distintas disciplinas y habilidades según el tipo
-                de evento.
+                El administrador puede registrar disciplinas y definir las
+                habilidades que serán consideradas en cada evento.
               </p>
+
+              <button
+                onClick={() => setShowCategoryForm(!showCategoryForm)}
+                className="btn-primary"
+                style={{ marginTop: 24, border: "none", cursor: "pointer" }}
+              >
+                {showCategoryForm ? "Cancelar" : "Crear categoría"}
+              </button>
             </div>
+
+            {showCategoryForm && (
+              <form
+                onSubmit={handleCreateCategory}
+                style={{
+                  marginBottom: 36,
+                  background: "#F7FAFF",
+                  border: "1px solid #E4EAF2",
+                  borderRadius: 20,
+                  padding: 24,
+                  display: "grid",
+                  gap: 16,
+                }}
+              >
+                <input
+                  name="name"
+                  value={categoryForm.name}
+                  onChange={handleCategoryChange}
+                  required
+                  placeholder="Nombre de la categoría"
+                  style={inputStyle}
+                />
+
+                <textarea
+                  name="description"
+                  value={categoryForm.description}
+                  onChange={handleCategoryChange}
+                  required
+                  rows={3}
+                  placeholder="Descripción"
+                  style={inputStyle}
+                />
+
+                <input
+                  name="skills"
+                  value={categoryForm.skills}
+                  onChange={handleCategoryChange}
+                  required
+                  placeholder="Habilidades separadas por comas"
+                  style={inputStyle}
+                />
+
+                <button type="submit" className="btn-primary" style={buttonReset}>
+                  Guardar categoría
+                </button>
+              </form>
+            )}
 
             <div
               style={{
@@ -621,9 +893,9 @@ function AdminHome() {
                 gap: 18,
               }}
             >
-              {categories.map((cat, i) => (
+              {categories.map((category, i) => (
                 <article
-                  key={cat.name}
+                  key={category.id}
                   className={`feat-card reveal reveal-d${i + 1} ${
                     categoriesSection.inView ? "visible" : ""
                   }`}
@@ -635,7 +907,7 @@ function AdminHome() {
                       color: "#050A14",
                     }}
                   >
-                    {cat.name}
+                    {category.name}
                   </h3>
 
                   <p
@@ -646,7 +918,7 @@ function AdminHome() {
                       marginTop: 10,
                     }}
                   >
-                    {cat.desc}
+                    {category.description}
                   </p>
 
                   <div
@@ -657,7 +929,7 @@ function AdminHome() {
                       marginTop: 16,
                     }}
                   >
-                    {cat.skills.map((skill) => (
+                    {category.skills?.map((skill) => (
                       <span key={skill} className="tag-pill">
                         {skill}
                       </span>
@@ -669,7 +941,6 @@ function AdminHome() {
           </div>
         </section>
 
-        {/* EVENTOS */}
         <section
           id="eventos"
           style={{
@@ -713,7 +984,122 @@ function AdminHome() {
                 Cada evento puede tener una disciplina, habilidades requeridas,
                 participantes inscritos y estado de disponibilidad.
               </p>
+
+              <button
+                onClick={() => setShowEventForm(!showEventForm)}
+                className="btn-primary"
+                style={{ marginTop: 24, border: "none", cursor: "pointer" }}
+              >
+                {showEventForm ? "Cancelar" : "Crear evento"}
+              </button>
             </div>
+
+            {showEventForm && (
+              <form
+                onSubmit={handleCreateEvent}
+                style={{
+                  marginTop: 32,
+                  marginBottom: 36,
+                  background: "#FFFFFF",
+                  border: "1px solid #E4EAF2",
+                  borderRadius: 20,
+                  padding: 24,
+                  display: "grid",
+                  gap: 16,
+                }}
+              >
+                <input
+                  name="name"
+                  value={eventForm.name}
+                  onChange={handleEventChange}
+                  required
+                  placeholder="Nombre del evento"
+                  style={inputStyle}
+                />
+
+                <select
+                  name="categoryId"
+                  value={eventForm.categoryId}
+                  onChange={handleEventChange}
+                  required
+                  style={inputStyle}
+                >
+                  <option value="">Selecciona una categoría</option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
+
+                <textarea
+                  name="description"
+                  value={eventForm.description}
+                  onChange={handleEventChange}
+                  required
+                  rows={3}
+                  placeholder="Descripción del evento"
+                  style={inputStyle}
+                />
+
+                <input
+                  type="date"
+                  name="eventDate"
+                  value={eventForm.eventDate}
+                  onChange={handleEventChange}
+                  required
+                  style={inputStyle}
+                />
+
+                <select
+                  name="modality"
+                  value={eventForm.modality}
+                  onChange={handleEventChange}
+                  style={inputStyle}
+                >
+                  <option value="Presencial">Presencial</option>
+                  <option value="Virtual">Virtual</option>
+                  <option value="Híbrido">Híbrido</option>
+                </select>
+
+                <input
+                  name="location"
+                  value={eventForm.location}
+                  onChange={handleEventChange}
+                  required
+                  placeholder="Lugar"
+                  style={inputStyle}
+                />
+
+                <select
+                  name="teamSize"
+                  value={eventForm.teamSize}
+                  onChange={handleEventChange}
+                  style={inputStyle}
+                >
+                  <option value="2">2 integrantes</option>
+                  <option value="3">3 integrantes</option>
+                  <option value="4">4 integrantes</option>
+                  <option value="5">5 integrantes</option>
+                  <option value="6">6 integrantes</option>
+                </select>
+
+                <select
+                  name="status"
+                  value={eventForm.status}
+                  onChange={handleEventChange}
+                  style={inputStyle}
+                >
+                  <option value="Abierto">Abierto</option>
+                  <option value="Próximamente">Próximamente</option>
+                  <option value="Cerrado">Cerrado</option>
+                </select>
+
+                <button type="submit" className="btn-primary" style={buttonReset}>
+                  Guardar evento
+                </button>
+              </form>
+            )}
 
             <div
               style={{
@@ -725,12 +1111,14 @@ function AdminHome() {
             >
               {events.map((event, i) => (
                 <article
-                  key={event.name}
+                  key={event.id}
                   className={`feat-card reveal reveal-d${i + 1} ${
                     eventsSection.inView ? "visible" : ""
                   }`}
                 >
-                  <span className="tag-pill">{event.category}</span>
+                  <span className="tag-pill">
+                    {event.categories?.name ?? "Sin categoría"}
+                  </span>
 
                   <h3
                     style={{
@@ -743,24 +1131,16 @@ function AdminHome() {
                     {event.name}
                   </h3>
 
-                  <p
-                    style={{
-                      fontSize: 13,
-                      color: "#5A6A85",
-                      marginTop: 8,
-                    }}
-                  >
-                    Fecha: {event.date}
+                  <p style={{ fontSize: 13, color: "#5A6A85", marginTop: 8 }}>
+                    Fecha: {event.event_date ?? "Sin fecha"}
                   </p>
 
-                  <p
-                    style={{
-                      fontSize: 13,
-                      color: "#5A6A85",
-                      marginTop: 4,
-                    }}
-                  >
-                    Participantes: {event.participants}
+                  <p style={{ fontSize: 13, color: "#5A6A85", marginTop: 4 }}>
+                    Modalidad: {event.modality}
+                  </p>
+
+                  <p style={{ fontSize: 13, color: "#5A6A85", marginTop: 4 }}>
+                    Equipo: {event.team_size} integrantes
                   </p>
 
                   <div
@@ -771,7 +1151,7 @@ function AdminHome() {
                       marginTop: 16,
                     }}
                   >
-                    {event.skills.map((skill) => (
+                    {event.categories?.skills?.map((skill) => (
                       <span key={skill} className="tag-pill">
                         {skill}
                       </span>
@@ -801,8 +1181,6 @@ function AdminHome() {
           </div>
         </section>
 
-      {/**() */}
-        {/* GENERADOR */}
         <section
           id="generador"
           style={{
@@ -848,7 +1226,7 @@ function AdminHome() {
                   lineHeight: 1.6,
                 }}
               >
-                El sistema puede generar equipos equilibrados considerando
+                Esta sección queda preparada para generar equipos considerando
                 evento, habilidades, intereses y roles preferidos.
               </p>
             </div>
@@ -861,13 +1239,7 @@ function AdminHome() {
               }}
             >
               <article className="feat-card">
-                <h3
-                  style={{
-                    fontSize: 18,
-                    fontWeight: 700,
-                    color: "#050A14",
-                  }}
-                >
+                <h3 style={{ fontSize: 18, fontWeight: 700, color: "#050A14" }}>
                   Configuración
                 </h3>
 
@@ -882,18 +1254,9 @@ function AdminHome() {
                     Evento
                   </span>
 
-                  <select
-                    style={{
-                      marginTop: 8,
-                      width: "100%",
-                      border: "1px solid #E4EAF2",
-                      borderRadius: 12,
-                      padding: "12px 14px",
-                      outline: "none",
-                    }}
-                  >
+                  <select style={{ ...inputStyle, marginTop: 8 }}>
                     {events.map((event) => (
-                      <option key={event.name}>{event.name}</option>
+                      <option key={event.id}>{event.name}</option>
                     ))}
                   </select>
                 </label>
@@ -909,16 +1272,7 @@ function AdminHome() {
                     Integrantes por equipo
                   </span>
 
-                  <select
-                    style={{
-                      marginTop: 8,
-                      width: "100%",
-                      border: "1px solid #E4EAF2",
-                      borderRadius: 12,
-                      padding: "12px 14px",
-                      outline: "none",
-                    }}
-                  >
+                  <select style={{ ...inputStyle, marginTop: 8 }}>
                     <option>3 integrantes</option>
                     <option>4 integrantes</option>
                     <option>5 integrantes</option>
@@ -1001,10 +1355,25 @@ function AdminHome() {
             </div>
           </div>
         </section>
-        
       </div>
     </>
   )
+}
+
+const inputStyle: React.CSSProperties = {
+  width: "100%",
+  border: "1px solid #E4EAF2",
+  borderRadius: 12,
+  padding: "12px 14px",
+  outline: "none",
+  fontSize: 14,
+  background: "#FFFFFF",
+}
+
+const buttonReset: React.CSSProperties = {
+  border: "none",
+  cursor: "pointer",
+  width: "fit-content",
 }
 
 export default AdminHome
