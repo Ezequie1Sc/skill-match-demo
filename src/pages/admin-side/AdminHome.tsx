@@ -5,6 +5,7 @@ import type { ChangeEvent, FormEvent } from "react"
 import AdminNavbar from "../../components/AdminNavBar"
 import { supabase } from "../../database/supabaseClient"
 import "../student-side/StudentHome.css"
+import { getTeam, getTeams } from "../../services/teamsService"
 
 type Participant = {
   id: number
@@ -84,18 +85,12 @@ const initialEventForm: EventFormData = {
   status: "Abierto",
 }
 
-const generatedTeams = [
-  {
-    name: "Equipo 1",
-    balance: "89%",
-    members: ["Sofía Ramírez", "Daniel Torres", "Valeria Cruz"],
-  },
-  {
-    name: "Equipo 2",
-    balance: "84%",
-    members: ["Luis Herrera", "Andrea López", "Carlos Pech"],
-  },
-]
+const saved_teams = await getTeams();
+console.log("saved Teams")
+console.log(saved_teams)
+
+
+
 
 function useInView(threshold = 0.15) {
   const ref = useRef<HTMLDivElement>(null)
@@ -323,7 +318,7 @@ function AdminHome() {
       label: "Eventos disponibles",
     },
     {
-      value: String(generatedTeams.length),
+      value: String(saved_teams.length),
       label: "Equipos generados",
     },
   ]

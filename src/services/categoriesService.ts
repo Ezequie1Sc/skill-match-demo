@@ -18,7 +18,7 @@ export type CreateCategoryData = {
 }
 
 
-export async function getTeams(): Promise<Category[]>{
+export async function getCategories(): Promise<Category[]>{
     const {data, error} = await supabase
         .from("categories")
         .select("*")
@@ -27,12 +27,10 @@ export async function getTeams(): Promise<Category[]>{
     if(error){
         throw new Error(error.message)
     }
-
     return data ?? [];
 
-}
-export async function getTeam(){}
-export async function createTeam(category: CreateCategoryData): Promise<void>{
+
+export async function createCategory(category: CreateCategoryData): Promise<void>{
     const {error} = await supabase.from("categories").insert(category)
 
     if(error){
