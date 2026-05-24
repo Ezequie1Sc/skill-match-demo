@@ -303,11 +303,11 @@ function StudentHome() {
           </svg>
           Crear cuenta gratis
         </Link>
-<Link to="/login" className="btn-ghost">          Iniciar sesión
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-        </Link>
+          <Link to="/login" className="btn-ghost">          Iniciar sesión
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
       </div>
 
       {/* FEATURES */}

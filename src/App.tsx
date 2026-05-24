@@ -13,6 +13,7 @@ import Login from './pages/student-side/login'
 // ─── ADMIN ───────────────────────────────────────
 import AdminLayout from './pages/AdminLayout'
 import AdminHome from './pages/admin-side/AdminHome'
+import UserHome from './pages/user-side/UserHome'
 import Participants from './pages/admin-side/Participants'
 import Generator from './pages/admin-side/Generator'
 import Dashboard from './pages/admin-side/Dashboard'
@@ -44,7 +45,7 @@ function App() {
         </Route>
 
         {/* RUTAS DE LOS USUARIOS*/}
-        <Route path='/user' element={<></>}>
+        <Route path='/user/home' element={<UserHome />}>
 
         </Route>
 

@@ -89,7 +89,7 @@ function StudentNavbar() {
 
               {/* LOGIN */}
               <Link
-                to="/student-side/login"
+                to="/login"
                 className="flex items-center gap-2 px-4 py-2 rounded-lg border border-white/40 text-white text-sm font-semibold hover:bg-white/10 transition"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
