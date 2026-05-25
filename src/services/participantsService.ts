@@ -144,3 +144,20 @@ export async function loginParticipant(
 
   return data as unknown as ParticipantData
 }
+
+
+export async function getParticipantsByEvent(
+  eventId: number,
+): Promise<ParticipantData[]> {
+  const { data, error } = await supabase
+    .from("participants")
+    .select(participantSelect)
+    .eq("event_id", eventId)
+    .order("id", { ascending: true })
+
+  if (error) {
+    throw new Error(error.message)
+  }
+
+  return (data ?? []) as unknown as ParticipantData[]
+}

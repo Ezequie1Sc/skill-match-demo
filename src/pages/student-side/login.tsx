@@ -372,4 +372,4 @@ const inputStyle: CSSProperties = {
   transition: "border-color 0.3s, box-shadow 0.3s",
 }
 
-export default Login
+export default Login             

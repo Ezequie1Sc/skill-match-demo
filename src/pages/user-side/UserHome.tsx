@@ -2,10 +2,11 @@ import { useEffect, useState } from "react"
 import type { CSSProperties } from "react"
 
 import "../student-side/StudentHome.css"
-
+import { createTeamWithMembers, getPendingInvitationsByParticipant, respondToTeamInvitation, type TeamInvitation } from "../../services/teamsService"
 import {
-  getLastParticipant,
   getParticipantByID,
+  getParticipantsByEvent,
+  getLastParticipant,
   type ParticipantData,
 } from "../../services/participantsService"
 
@@ -15,38 +16,184 @@ import {
 } from "../../services/eventsService"
 
 function UserHome() {
+  const [invitations, setInvitations] = useState<TeamInvitation[]>([])
+  const [creatingTeam, setCreatingTeam] = useState(false)
   const [participant, setParticipant] = useState<ParticipantData | null>(null)
   const [events, setEvents] = useState<EventData[]>([])
   const [loading, setLoading] = useState(true)
   const [message, setMessage] = useState("")
+  const [lookingForTeam, setLookingForTeam] = useState(true)
+  const [suggestedTeam, setSuggestedTeam] = useState<ParticipantData[]>([])
+  const [teamSize, setTeamSize] = useState("4")
+
+  
 
   useEffect(() => {
     loadUserData()
   }, [])
 
-  async function loadUserData() {
-    try {
-      setLoading(true)
-      setMessage("")
+  function getParticipantAverage(participant: ParticipantData) {
+  const values = [
+    participant.frontend,
+    participant.backend,
+    participant.database_design,
+    participant.ui_design,
+    participant.documentation,
+    participant.presentation,
+    participant.leadership,
+  ]
 
-      const currentParticipantId = localStorage.getItem("currentParticipantId")
+  const average =
+    values.reduce((sum, value) => sum + Number(value ?? 0), 0) / values.length
 
-      const [eventsData, participantData] = await Promise.all([
-        getEvents(),
-        currentParticipantId
-          ? getParticipantByID(Number(currentParticipantId))
-          : getLastParticipant(),
-      ])
+  return Number(average.toFixed(1))
+}
 
-      setEvents(eventsData)
-      setParticipant(participantData)
-    } catch (error) {
-      console.error("Error al cargar datos del usuario:", error)
-      setMessage("No se pudieron cargar los datos del participante.")
-    } finally {
-      setLoading(false)
-    }
+function suggestTeamForParticipant(
+  currentParticipant: ParticipantData,
+  participants: ParticipantData[],
+  size: number,
+) {
+  const candidates = participants
+    .filter((candidate) => candidate.id !== currentParticipant.id)
+    .map((candidate) => {
+      const differentRole =
+        candidate.preferred_role !== currentParticipant.preferred_role ? 1 : 0
+
+      const averageDifference = Math.abs(
+        getParticipantAverage(candidate) -
+          getParticipantAverage(currentParticipant),
+      )
+
+      return {
+        participant: candidate,
+        score: differentRole * 2 - averageDifference,
+      }
+    })
+    .sort((a, b) => b.score - a.score)
+    .map((item) => item.participant)
+
+  return [currentParticipant, ...candidates.slice(0, size - 1)]
+}
+
+async function handleSearchTeam() {
+  if (!participant) {
+    setMessage("Inicia sesión para buscar equipo.")
+    return
   }
+
+  try {
+    const participantsByEvent = await getParticipantsByEvent(participant.event_id)
+
+    const team = suggestTeamForParticipant(
+      participant,
+      participantsByEvent,
+      Number(teamSize),
+    )
+
+    setSuggestedTeam(team)
+    setMessage("Sugerencia de equipo generada correctamente.")
+  } catch (error) {
+    console.error("Error al sugerir equipo:", error)
+    setMessage("No se pudo generar una sugerencia de equipo.")
+  }
+}
+
+
+async function handleCreateSuggestedTeam() {
+  if (!participant || suggestedTeam.length === 0) {
+    setMessage("Primero genera una sugerencia de equipo.")
+    return
+  }
+
+  try {
+    setCreatingTeam(true)
+    setMessage("")
+
+    const balanceScore =
+      suggestedTeam.reduce(
+        (sum, member) => sum + getParticipantAverage(member),
+        0,
+      ) / suggestedTeam.length
+
+    await createTeamWithMembers(
+  {
+    name: `Equipo de ${participant.full_name}`,
+    event_id: participant.event_id,
+    balance_score: Number(balanceScore.toFixed(1)),
+    members: suggestedTeam,
+  },
+  participant.id,
+)
+
+    setMessage("Equipo creado correctamente.")
+  } catch (error) {
+    console.error("Error al crear equipo:", error)
+    setMessage("No se pudo crear el equipo.")
+  } finally {
+    setCreatingTeam(false)
+  }
+}
+
+async function handleRespondInvitation(
+  invitationId: number,
+  status: "Aceptado" | "Rechazado",
+) {
+  try {
+    await respondToTeamInvitation(invitationId, status)
+
+    setInvitations((prev) =>
+      prev.filter((invitation) => invitation.id !== invitationId),
+    )
+
+    setMessage(
+      status === "Aceptado"
+        ? "Invitación aceptada."
+        : "Invitación rechazada.",
+    )
+  } catch (error) {
+    console.error("Error al responder invitación:", error)
+    setMessage("No se pudo responder la invitación.")
+  }
+}
+
+
+ async function loadUserData() {
+  try {
+    setLoading(true)
+    setMessage("")
+
+    const currentParticipantId = localStorage.getItem("currentParticipantId")
+
+    const eventsData = await getEvents()
+    setEvents(eventsData)
+
+    if (!currentParticipantId) {
+      setParticipant(null)
+      setMessage("Inicia sesión para consultar tu perfil.")
+      return
+    }
+
+    const participantData = await getParticipantByID(
+      Number(currentParticipantId),
+    )
+
+    setParticipant(participantData)
+
+    if (participantData) {
+      const invitationData = await getPendingInvitationsByParticipant(
+        participantData.id,
+      )
+
+      setInvitations(invitationData)
+    }
+  } catch (error) {
+    console.error("Error al cargar datos del usuario:", error)
+    setMessage("No se pudieron cargar los datos del usuario.")
+  } finally {
+    setLoading(false)
+  }
+}
 
   function getSkillsAverage(participant: ParticipantData) {
     const values = [
@@ -486,28 +633,141 @@ function UserHome() {
       </section>
 
       {/* MI EQUIPO */}
-      <section
-        id="mi-equipo"
-        style={{
-          background: "#F7FAFF",
-          padding: "90px 32px",
-          width: "100%",
-          scrollMarginTop: 80,
-        }}
-      >
-        <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-          <SectionTitle
-            label="Mi equipo"
-            title="Equipo asignado"
-            description="Cuando el administrador genere los equipos, podrás consultar aquí tus compañeros asignados."
-          />
+          <section
+  id="mi-equipo"
+  style={{
+    background: "#F7FAFF",
+    padding: "90px 32px",
+    width: "100%",
+    scrollMarginTop: 80,
+  }}
+>
+  <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+    <SectionTitle
+      label="Mi equipo"
+      title="Buscar equipo"
+      description="Activa tu disponibilidad y recibe una sugerencia de compañeros compatibles para tu evento."
+    />
 
-          <EmptyState
-            title="Aún no tienes equipo asignado"
-            description="Tu equipo aparecerá en esta sección cuando el administrador ejecute la generación de equipos."
-          />
+    {invitations.length > 0 && (
+      <article className="feat-card" style={{ marginTop: 36 }}>
+        <h3 style={cardTitle}>Invitaciones pendientes</h3>
+
+        <p
+          style={{
+            fontSize: 13,
+            color: "#5A6A85",
+            lineHeight: 1.6,
+            marginTop: 8,
+            marginBottom: 18,
+          }}
+        >
+          Otros participantes te han invitado a formar parte de sus equipos.
+          Puedes aceptar o rechazar cada invitación.
+        </p>
+
+        <div style={{ display: "grid", gap: 12 }}>
+          {invitations.map((invitation) => (
+            <div
+              key={invitation.id}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                gap: 16,
+                padding: "14px 16px",
+                borderRadius: 14,
+                background: "#F7FAFF",
+                border: "1px solid #E4EAF2",
+              }}
+            >
+              <div>
+                <p
+                  style={{
+                    fontSize: 14,
+                    fontWeight: 800,
+                    color: "#050A14",
+                  }}
+                >
+                  {invitation.teams?.name ?? "Equipo sin nombre"}
+                </p>
+
+                <p
+                  style={{
+                    fontSize: 12,
+                    color: "#5A6A85",
+                    marginTop: 4,
+                  }}
+                >
+                  Balance estimado:{" "}
+                  {invitation.teams?.balance_score ?? "N/A"}/5
+                </p>
+              </div>
+
+              <div style={{ display: "flex", gap: 8 }}>
+                <button
+                  type="button"
+                  onClick={() =>
+                    handleRespondInvitation(invitation.id, "Aceptado")
+                  }
+                  style={{
+                    border: "none",
+                    borderRadius: 10,
+                    background: "#0085FF",
+                    color: "#FFFFFF",
+                    padding: "10px 14px",
+                    fontSize: 13,
+                    fontWeight: 800,
+                    cursor: "pointer",
+                  }}
+                >
+                  Aceptar
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    handleRespondInvitation(invitation.id, "Rechazado")
+                  }
+                  style={{
+                    border: "1px solid #E4EAF2",
+                    borderRadius: 10,
+                    background: "#FFFFFF",
+                    color: "#5A6A85",
+                    padding: "10px 14px",
+                    fontSize: 13,
+                    fontWeight: 800,
+                    cursor: "pointer",
+                  }}
+                >
+                  Rechazar
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
-      </section>
+      </article>
+    )}
+
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "1fr 1.4fr",
+        gap: 24,
+        marginTop: 36,
+      }}
+    >
+      {/* aquí va tu card de Estado de búsqueda */}
+
+      {/* aquí va tu card de Equipo sugerido */}
+    </div>
+  </div>
+</section>
+
+
+
+
+
     </main>
   )
 }
