@@ -69,9 +69,9 @@ function UserNavbar() {
             className="flex items-center shrink-0"
           >
             <img
-              src="/skill.png"
+              src="/skillmatch.svg"
               alt="SkillMatch Logo"
-              className="h-12 w-auto object-contain brightness-0 invert"
+              className="h-16 w-auto object-contain brightness-0 invert"
             />
           </button>
 
@@ -141,9 +141,9 @@ function UserNavbar() {
           <div className="fixed right-0 top-0 bottom-0 w-64 bg-[#0085FF] z-50 p-5 flex flex-col">
             <div className="flex items-center justify-between">
               <img
-                src="/skill.png"
+                src="/skillmatch.svg"
                 alt="SkillMatch Logo"
-                className="h-12 w-auto object-contain brightness-0 invert"
+                className="h-16 w-auto object-contain brightness-0 invert"
               />
 
               <button

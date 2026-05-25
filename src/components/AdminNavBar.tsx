@@ -60,13 +60,13 @@ function AdminNavbar() {
             className="flex items-center shrink-0"
           >
             <img
-              src="/skill.png"
+              src="/skillmatch.svg"
               alt="SkillMatch Logo"
-              className="h-12 w-auto object-contain brightness-0 invert"
+              className="h-16 w-auto object-contain brightness-0 invert"
             />
 
             <span className="ml-2 hidden sm:inline text-white text-sm font-semibold">
-              SkillMatch Administrator Panel
+              PANEL DE ADMINISTRADOR
             </span>
           </button>
 

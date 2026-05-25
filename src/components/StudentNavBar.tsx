@@ -52,7 +52,7 @@ function StudentNavbar() {
       } bg-[#0085FF]`}
     >
       {/* NAV */}
-      <nav className="h-18 flex items-center px-6">
+      <nav className="h-16 flex items-center px-6">
         <div className="w-full max-w-7xl mx-auto flex items-center">
 
           {/* LOGO */}
@@ -61,9 +61,9 @@ function StudentNavbar() {
             className="flex items-center shrink-0"
           >
             <img
-              src="/skill.png"
+              src="/skillmatch.svg"
               alt="SkillMatch Logo"
-              className="h-12 w-auto object-contain brightness-0 invert"
+              className="h-16 w-auto object-contain brightness-0 invert"
             />
           </button>
 

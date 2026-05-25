@@ -411,7 +411,7 @@ async function handleRespondInvitation(
             }}
           >
             <img
-              src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=1200"
+              src="/placeholder.svg"
               alt="Estudiantes colaborando"
               style={{
                 width: "100%",
@@ -556,7 +556,7 @@ async function handleRespondInvitation(
         id="eventos"
         style={{
           background: "#FFFFFF",
-          padding: "90px 32px",
+          padding: "60px 32px",
           width: "100%",
           scrollMarginTop: 80,
         }}
