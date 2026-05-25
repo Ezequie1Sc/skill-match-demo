@@ -87,6 +87,9 @@ function AdminNavbar() {
             </div>
 
             <div className="flex items-center gap-3">
+              {/** 
+               * 
+              
               <Link
                 to="/"
                 className="flex items-center gap-2 px-4 py-2 rounded-lg border border-white/40 text-white text-sm font-semibold hover:bg-white/10 transition"
@@ -106,6 +109,7 @@ function AdminNavbar() {
                 </svg>
                 Landing
               </Link>
+              */}
 
               <Link
                 to="/landing/register"

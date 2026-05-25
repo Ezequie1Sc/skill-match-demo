@@ -90,13 +90,14 @@ function UserNavbar() {
             </div>
 
             <div className="flex items-center gap-3">
-              {/* */}
+              {/* 
               <Link
                 to="/landing-page"
                 className="flex items-center gap-2 px-4 py-2 rounded-lg border border-white/40 text-white text-sm font-semibold hover:bg-white/10 transition"
               >
                 Landing
               </Link>
+              */}
 
               <button
                 onClick={handleLogout}
