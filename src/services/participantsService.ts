@@ -14,6 +14,8 @@ export type CreateParticipantData = {
   documentation: number
   presentation: number
   leadership: number
+  email: string
+  password: string
 }
 
 export type ParticipantData = {
@@ -32,52 +34,74 @@ export type ParticipantData = {
   presentation: number
   leadership: number
   created_at: string
+  email: string | null
   events?: {
     id: number
     name: string
   } | null
 }
 
+const participantSelect = `
+  id,
+  full_name,
+  career,
+  semester,
+  preferred_role,
+  interests,
+  event_id,
+  frontend,
+  backend,
+  database_design,
+  ui_design,
+  documentation,
+  presentation,
+  leadership,
+  created_at,
+  email,
+  events (
+    id,
+    name
+  )
+`
 
 export async function createParticipant(
   participant: CreateParticipantData,
-): Promise<void> {
-  const { error } = await supabase
+): Promise<ParticipantData> {
+  const { data, error } = await supabase
     .from("participants")
-    .insert(participant)
+    .insert({
+      ...participant,
+      email: participant.email.trim().toLowerCase(),
+    })
+    .select(participantSelect)
+    .single()
 
   if (error) {
     throw new Error(error.message)
   }
+
+  return data as unknown as ParticipantData
 }
 
-
-export async function getParticipants(
-
-):Promise<ParticipantData[]>{
-    const {data, error} = await supabase
+export async function getParticipants(): Promise<ParticipantData[]> {
+  const { data, error } = await supabase
     .from("participants")
-    .select("*")
-    .order("id", {ascending: true})
+    .select(participantSelect)
+    .order("id", { ascending: true })
 
-  if(error){
+  if (error) {
     throw new Error(error.message)
   }
-  return data ?? [];
 
+  return (data ?? []) as unknown as ParticipantData[]
 }
 
-
-export async function getParticipantByID(id: number): Promise<ParticipantData | null>{
- const { data, error } = await supabase
+export async function getParticipantByID(
+  id: number,
+): Promise<ParticipantData | null> {
+  const { data, error } = await supabase
     .from("participants")
-    .select(`
-      *,
-      events (
-        id,
-        name
-      )
-    `)
+    .select(participantSelect)
     .eq("id", id)
     .single()
 
@@ -85,20 +109,13 @@ export async function getParticipantByID(id: number): Promise<ParticipantData | 
     throw new Error(error.message)
   }
 
-  return data ?? null
+  return data as unknown as ParticipantData
 }
-
 
 export async function getLastParticipant(): Promise<ParticipantData | null> {
   const { data, error } = await supabase
     .from("participants")
-    .select(`
-      *,
-      events (
-        id,
-        name
-      )
-    `)
+    .select(participantSelect)
     .order("id", { ascending: false })
     .limit(1)
     .single()
@@ -107,5 +124,23 @@ export async function getLastParticipant(): Promise<ParticipantData | null> {
     throw new Error(error.message)
   }
 
-  return data ?? null
+  return data as unknown as ParticipantData
+}
+
+export async function loginParticipant(
+  email: string,
+  password: string,
+): Promise<ParticipantData | null> {
+  const { data, error } = await supabase
+    .from("participants")
+    .select(participantSelect)
+    .eq("email", email.trim().toLowerCase())
+    .eq("password", password)
+    .single()
+
+  if (error) {
+    return null
+  }
+
+  return data as unknown as ParticipantData
 }

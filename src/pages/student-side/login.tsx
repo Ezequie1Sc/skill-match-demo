@@ -1,12 +1,14 @@
 import { useState } from "react"
+import type { CSSProperties } from "react"
 import { Link, useNavigate } from "react-router-dom"
 
 import StudentNavbar from "../../components/StudentNavBar"
-import { getParticipantByID } from "../../services/participantsService"
+import { loginParticipant } from "../../services/participantsService"
 import "./StudentHome.css"
 
 function Login() {
-  const [participantId, setParticipantId] = useState("")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
   const [remember, setRemember] = useState(false)
   const [errorMessage, setErrorMessage] = useState("")
   const [loading, setLoading] = useState(false)
@@ -20,10 +22,10 @@ function Login() {
       setLoading(true)
       setErrorMessage("")
 
-      const participant = await getParticipantByID(Number(participantId))
+      const participant = await loginParticipant(email, password)
 
       if (!participant) {
-        setErrorMessage("No se encontró un participante con ese ID.")
+        setErrorMessage("Correo o contraseña incorrectos.")
         return
       }
 
@@ -38,7 +40,7 @@ function Login() {
       navigate("/user/home")
     } catch (error) {
       console.error("Error al iniciar sesión:", error)
-      setErrorMessage("No se pudo iniciar sesión. Revisa el ID ingresado.")
+      setErrorMessage("No se pudo iniciar sesión. Intenta de nuevo.")
     } finally {
       setLoading(false)
     }
@@ -69,7 +71,6 @@ function Login() {
             alignItems: "center",
           }}
         >
-          {/* LADO IZQUIERDO */}
           <div>
             <div className="section-label">
               <span className="dot" />
@@ -89,9 +90,7 @@ function Login() {
             >
               Entra a tu panel
               <br />
-              <span style={{ color: "#0085FF" }}>
-                SkillMatch
-              </span>
+              <span style={{ color: "#0085FF" }}>SkillMatch</span>
             </h1>
 
             <p
@@ -102,8 +101,8 @@ function Login() {
                 lineHeight: 1.65,
               }}
             >
-              Ingresa tu ID de participante para consultar tu perfil,
-              eventos disponibles y el estado de tu equipo asignado.
+              Ingresa tu correo y contraseña para consultar tu perfil, eventos
+              disponibles y el estado de tu equipo asignado.
             </p>
 
             <div
@@ -150,7 +149,6 @@ function Login() {
             </div>
           </div>
 
-          {/* TARJETA LOGIN */}
           <div
             style={{
               background: "#FFFFFF",
@@ -183,7 +181,7 @@ function Login() {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={1.8}
-                  d="M15 7a3 3 0 11-6 0 3 3 0 016 0zM4 21a8 8 0 1116 0H4z"
+                  d="M15 7a3 3 0 11-6 0 3 3 0 016 0zM4 21a8 8 0 0116 0H4z"
                 />
               </svg>
             </div>
@@ -208,7 +206,7 @@ function Login() {
                 marginBottom: 24,
               }}
             >
-              Usa el ID que se generó al registrarte en la plataforma.
+              Usa el correo y la contraseña que registraste en SkillMatch.
             </p>
 
             {errorMessage && (
@@ -228,46 +226,29 @@ function Login() {
             )}
 
             <form onSubmit={handleSubmit}>
-              <label
-                style={{
-                  display: "block",
-                  fontSize: 13,
-                  fontWeight: 700,
-                  color: "#050A14",
-                  marginBottom: 8,
-                }}
-              >
-                ID de participante
+              <label style={labelStyle}>Correo electrónico</label>
+
+              <input
+                type="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                placeholder="correo@ejemplo.com"
+                required
+                style={inputStyle}
+              />
+
+              <label style={{ ...labelStyle, marginTop: 16 }}>
+                Contraseña
               </label>
 
               <input
-                type="number"
-                value={participantId}
-                onChange={(event) => setParticipantId(event.target.value)}
-                placeholder="Ej. 1"
+                type="password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                placeholder="Ingresa tu contraseña"
                 required
-                min="1"
-                style={{
-                  width: "100%",
-                  padding: "13px 16px",
-                  borderRadius: 12,
-                  border: "1.5px solid #E4EAF2",
-                  fontSize: 14,
-                  fontFamily: "'Outfit', sans-serif",
-                  color: "#050A14",
-                  background: "#F7FAFF",
-                  outline: "none",
-                  transition: "border-color 0.3s, box-shadow 0.3s",
-                }}
-                onFocus={(event) => {
-                  event.target.style.borderColor = "#0085FF"
-                  event.target.style.boxShadow =
-                    "0 0 0 4px rgba(0,133,255,0.08)"
-                }}
-                onBlur={(event) => {
-                  event.target.style.borderColor = "#E4EAF2"
-                  event.target.style.boxShadow = "none"
-                }}
+                minLength={6}
+                style={inputStyle}
               />
 
               <div
@@ -294,7 +275,7 @@ function Login() {
                     checked={remember}
                     onChange={(event) => setRemember(event.target.checked)}
                   />
-                  Recordar participante
+                  Recordarme
                 </label>
 
                 <Link
@@ -368,6 +349,27 @@ function Login() {
       </main>
     </>
   )
+}
+
+const labelStyle: CSSProperties = {
+  display: "block",
+  fontSize: 13,
+  fontWeight: 700,
+  color: "#050A14",
+  marginBottom: 8,
+}
+
+const inputStyle: CSSProperties = {
+  width: "100%",
+  padding: "13px 16px",
+  borderRadius: 12,
+  border: "1.5px solid #E4EAF2",
+  fontSize: 14,
+  fontFamily: "'Outfit', sans-serif",
+  color: "#050A14",
+  background: "#F7FAFF",
+  outline: "none",
+  transition: "border-color 0.3s, box-shadow 0.3s",
 }
 
 export default Login

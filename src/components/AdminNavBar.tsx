@@ -52,7 +52,7 @@ function AdminNavbar() {
         scrolled ? "shadow-lg" : "shadow-md"
       } bg-[#0085FF]`}
     >
-      <nav className="h-14 flex items-center px-6">
+      <nav className="h-18 flex items-center px-6">
         <div className="w-full max-w-7xl mx-auto flex items-center">
           {/* LOGO */}
           <button

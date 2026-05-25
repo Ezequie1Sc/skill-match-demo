@@ -1,9 +1,12 @@
 // pages/Register.tsx
 import { useEffect, useState } from "react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import Notification from "../../components/Notification"
 import Footer from "../../components/Footer"
-import { getEvents, type EventOption } from "../../services/eventsService"
+import {
+  getEventOptions,
+  type EventOption,
+} from "../../services/eventsService"
 import {
   createParticipant,
   type CreateParticipantData,
@@ -11,6 +14,8 @@ import {
 
 type RegisterFormData = {
   fullName: string
+  email: string
+  password: string
   career: string
   semester: string
   preferredRole: string
@@ -27,6 +32,8 @@ type RegisterFormData = {
 
 const initialFormData: RegisterFormData = {
   fullName: "",
+  email: "",
+  password: "",
   career: "",
   semester: "",
   preferredRole: "",
@@ -46,12 +53,13 @@ type ValidationError = {
   message: string
 }
 
-
 function Register() {
   const [formData, setFormData] = useState<RegisterFormData>(initialFormData)
   const [errors, setErrors] = useState<ValidationError[]>([])
   const [events, setEvents] = useState<EventOption[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const navigate = useNavigate()
 
   const [notification, setNotification] = useState<{
     type: "success" | "error" | "warning" | "info"
@@ -66,7 +74,7 @@ function Register() {
   useEffect(() => {
     async function loadEvents() {
       try {
-        const events = await getEvents()
+        const events = await getEventOptions()
         setEvents(events)
       } catch (error) {
         console.error("Error al cargar eventos:", error)
@@ -111,6 +119,30 @@ function Register() {
       errors.push({
         field: "fullName",
         message: "El nombre debe tener al menos 3 caracteres",
+      })
+    }
+
+    if (!formData.email.trim()) {
+      errors.push({
+        field: "email",
+        message: "El correo electrónico es obligatorio",
+      })
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      errors.push({
+        field: "email",
+        message: "Ingresa un correo electrónico válido",
+      })
+    }
+
+    if (!formData.password.trim()) {
+      errors.push({
+        field: "password",
+        message: "La contraseña es obligatoria",
+      })
+    } else if (formData.password.length < 6) {
+      errors.push({
+        field: "password",
+        message: "La contraseña debe tener al menos 6 caracteres",
       })
     }
 
@@ -186,6 +218,8 @@ function Register() {
 
       const participantData: CreateParticipantData = {
         full_name: formData.fullName.trim(),
+        email: formData.email.trim().toLowerCase(),
+        password: formData.password,
         career: formData.career,
         semester: Number(formData.semester),
         preferred_role: formData.preferredRole,
@@ -203,7 +237,12 @@ function Register() {
         leadership: Number(formData.leadership),
       }
 
-      await createParticipant(participantData)
+      const createdParticipant = await createParticipant(participantData)
+
+      localStorage.setItem(
+        "currentParticipantId",
+        String(createdParticipant.id),
+      )
 
       setNotification({
         type: "success",
@@ -213,12 +252,15 @@ function Register() {
 
       setFormData(initialFormData)
       setErrors([])
+
+      navigate("/user/home")
     } catch (error) {
       console.error("Error al registrar:", error)
 
       setNotification({
         type: "error",
-        message: "Algo salió mal. Por favor intenta de nuevo.",
+        message:
+          "No se pudo registrar el participante. Verifica que el correo no esté registrado.",
         isOpen: true,
       })
     } finally {
@@ -269,8 +311,8 @@ function Register() {
             </h1>
 
             <p className="text-white/80 max-w-2xl">
-              Registra tus datos, intereses y habilidades para participar en un
-              evento y formar parte de un equipo equilibrado.
+              Registra tus datos, intereses, habilidades y credenciales para
+              participar en un evento y formar parte de un equipo equilibrado.
             </p>
           </div>
 
@@ -279,19 +321,6 @@ function Register() {
               <div className="grid gap-6 md:grid-cols-2">
                 <div className="block">
                   <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-1.5">
-                    <svg
-                      className="w-4 h-4 text-[#0085FF]"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                      />
-                    </svg>
                     Nombre completo
                   </label>
 
@@ -310,7 +339,7 @@ function Register() {
                   />
 
                   {getErrorMessage("fullName") && (
-                    <p className="mt-1.5 text-xs text-red-500 flex items-center gap-1">
+                    <p className="mt-1.5 text-xs text-red-500">
                       {getErrorMessage("fullName")}
                     </p>
                   )}
@@ -318,19 +347,59 @@ function Register() {
 
                 <div className="block">
                   <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-1.5">
-                    <svg
-                      className="w-4 h-4 text-[#0085FF]"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-                      />
-                    </svg>
+                    Correo electrónico
+                  </label>
+
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                    placeholder="correo@ejemplo.com"
+                    className={`mt-1 w-full rounded-xl border px-4 py-3 outline-none transition focus:ring-2 ${
+                      getErrorMessage("email")
+                        ? "border-red-300 focus:border-red-500 focus:ring-red-100"
+                        : "border-slate-200 focus:border-[#0085FF] focus:ring-[#0085FF]/20"
+                    }`}
+                  />
+
+                  {getErrorMessage("email") && (
+                    <p className="mt-1.5 text-xs text-red-500">
+                      {getErrorMessage("email")}
+                    </p>
+                  )}
+                </div>
+
+                <div className="block">
+                  <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-1.5">
+                    Contraseña
+                  </label>
+
+                  <input
+                    type="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    required
+                    minLength={6}
+                    placeholder="Mínimo 6 caracteres"
+                    className={`mt-1 w-full rounded-xl border px-4 py-3 outline-none transition focus:ring-2 ${
+                      getErrorMessage("password")
+                        ? "border-red-300 focus:border-red-500 focus:ring-red-100"
+                        : "border-slate-200 focus:border-[#0085FF] focus:ring-[#0085FF]/20"
+                    }`}
+                  />
+
+                  {getErrorMessage("password") && (
+                    <p className="mt-1.5 text-xs text-red-500">
+                      {getErrorMessage("password")}
+                    </p>
+                  )}
+                </div>
+
+                <div className="block">
+                  <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-1.5">
                     Carrera
                   </label>
 
@@ -364,7 +433,7 @@ function Register() {
                   </select>
 
                   {getErrorMessage("career") && (
-                    <p className="mt-1.5 text-xs text-red-500 flex items-center gap-1">
+                    <p className="mt-1.5 text-xs text-red-500">
                       {getErrorMessage("career")}
                     </p>
                   )}
@@ -372,19 +441,6 @@ function Register() {
 
                 <div className="block">
                   <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-1.5">
-                    <svg
-                      className="w-4 h-4 text-[#0085FF]"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                      />
-                    </svg>
                     Semestre
                   </label>
 
@@ -408,7 +464,7 @@ function Register() {
                   </select>
 
                   {getErrorMessage("semester") && (
-                    <p className="mt-1.5 text-xs text-red-500 flex items-center gap-1">
+                    <p className="mt-1.5 text-xs text-red-500">
                       {getErrorMessage("semester")}
                     </p>
                   )}
@@ -416,19 +472,6 @@ function Register() {
 
                 <div className="block">
                   <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-1.5">
-                    <svg
-                      className="w-4 h-4 text-[#0085FF]"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                      />
-                    </svg>
                     Rol preferido
                   </label>
 
@@ -454,7 +497,7 @@ function Register() {
                   </select>
 
                   {getErrorMessage("preferredRole") && (
-                    <p className="mt-1.5 text-xs text-red-500 flex items-center gap-1">
+                    <p className="mt-1.5 text-xs text-red-500">
                       {getErrorMessage("preferredRole")}
                     </p>
                   )}
@@ -462,19 +505,6 @@ function Register() {
 
                 <div className="block md:col-span-2">
                   <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-1.5">
-                    <svg
-                      className="w-4 h-4 text-[#0085FF]"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                      />
-                    </svg>
                     Evento de interés
                   </label>
 
@@ -499,7 +529,7 @@ function Register() {
                   </select>
 
                   {getErrorMessage("eventId") && (
-                    <p className="mt-1.5 text-xs text-red-500 flex items-center gap-1">
+                    <p className="mt-1.5 text-xs text-red-500">
                       {getErrorMessage("eventId")}
                     </p>
                   )}
@@ -514,19 +544,6 @@ function Register() {
 
                 <div className="block md:col-span-2">
                   <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-1.5">
-                    <svg
-                      className="w-4 h-4 text-[#0085FF]"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                      />
-                    </svg>
                     Intereses
                   </label>
 
@@ -545,7 +562,7 @@ function Register() {
                   />
 
                   {getErrorMessage("interests") ? (
-                    <p className="mt-1.5 text-xs text-red-500 flex items-center gap-1">
+                    <p className="mt-1.5 text-xs text-red-500">
                       {getErrorMessage("interests")}
                     </p>
                   ) : (
@@ -557,25 +574,9 @@ function Register() {
               </div>
 
               <div className="mt-2">
-                <div className="flex items-center gap-2 mb-2">
-                  <svg
-                    className="w-5 h-5 text-[#0085FF]"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M13 10V3L4 14h7v7l9-11h-7z"
-                    />
-                  </svg>
-
-                  <h2 className="text-xl font-bold text-slate-900">
-                    Nivel de habilidades
-                  </h2>
-                </div>
+                <h2 className="text-xl font-bold text-slate-900 mb-2">
+                  Nivel de habilidades
+                </h2>
 
                 <p className="text-sm text-slate-500 mb-4">
                   Selecciona un nivel del 1 al 5, donde 1 es básico y 5 es
@@ -640,19 +641,6 @@ function Register() {
                   onClick={handleClear}
                   className="flex items-center justify-center gap-2 rounded-xl border border-slate-300 px-6 py-3 font-semibold text-slate-700 transition hover:bg-slate-50"
                 >
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                    />
-                  </svg>
                   Limpiar
                 </button>
 
@@ -661,20 +649,6 @@ function Register() {
                   disabled={isSubmitting}
                   className="flex items-center justify-center gap-2 rounded-xl bg-[#0085FF] px-6 py-3 font-semibold text-white transition hover:bg-[#0070DD] hover:scale-105 active:scale-95 shadow-lg shadow-[#0085FF]/25 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100"
                 >
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M18 9v3m0 0v3m0-3h3m-3 0h-3M12 12a5 5 0 100-10 5 5 0 000 10zM2 22a10 10 0 0120 0"
-                    />
-                  </svg>
-
                   {isSubmitting ? "Registrando..." : "Registrar participante"}
                 </button>
               </div>
