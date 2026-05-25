@@ -35,6 +35,7 @@ export type ParticipantData = {
   leadership: number
   created_at: string
   email: string | null
+  looking_for_team: boolean
   events?: {
     id: number
     name: string
@@ -58,6 +59,7 @@ const participantSelect = `
   leadership,
   created_at,
   email,
+  looking_for_team,
   events (
     id,
     name
@@ -160,4 +162,19 @@ export async function getParticipantsByEvent(
   }
 
   return (data ?? []) as unknown as ParticipantData[]
+}
+
+
+export async function updateLookingForTeam(
+  participantId: number,
+  lookingForTeam: boolean,
+): Promise<void> {
+  const { error } = await supabase
+    .from("participants")
+    .update({ looking_for_team: lookingForTeam })
+    .eq("id", participantId)
+
+  if (error) {
+    throw new Error(error.message)
+  }
 }

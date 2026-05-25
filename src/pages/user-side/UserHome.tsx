@@ -6,10 +6,9 @@ import { createTeamWithMembers, getPendingInvitationsByParticipant, respondToTea
 import {
   getParticipantByID,
   getParticipantsByEvent,
-  getLastParticipant,
+  updateLookingForTeam,
   type ParticipantData,
 } from "../../services/participantsService"
-
 import {
   getEvents,
   type EventData,
@@ -55,7 +54,12 @@ function suggestTeamForParticipant(
   size: number,
 ) {
   const candidates = participants
-    .filter((candidate) => candidate.id !== currentParticipant.id)
+    .filter((candidate) => {
+      return (
+        candidate.id !== currentParticipant.id &&
+        candidate.looking_for_team === true
+      )
+    })
     .map((candidate) => {
       const differentRole =
         candidate.preferred_role !== currentParticipant.preferred_role ? 1 : 0
@@ -135,6 +139,31 @@ async function handleCreateSuggestedTeam() {
   }
 }
 
+async function handleToggleLookingForTeam(value: boolean) {
+  if (!participant) {
+    setMessage("Inicia sesión para cambiar tu disponibilidad.")
+    return
+  }
+
+  try {
+    setLookingForTeam(value)
+
+    await updateLookingForTeam(participant.id, value)
+
+    setMessage(
+      value
+        ? "Ahora apareces como disponible para formar equipo."
+        : "Tu disponibilidad para formar equipo fue desactivada.",
+    )
+  } catch (error) {
+    console.error("Error al actualizar disponibilidad:", error)
+    setLookingForTeam(!value)
+    setMessage("No se pudo actualizar tu disponibilidad.")
+  }
+}
+
+
+
 async function handleRespondInvitation(
   invitationId: number,
   status: "Aceptado" | "Rechazado",
@@ -179,6 +208,10 @@ async function handleRespondInvitation(
     )
 
     setParticipant(participantData)
+
+    if (participantData) {
+       setLookingForTeam(participantData.looking_for_team)
+    }
 
     if (participantData) {
       const invitationData = await getPendingInvitationsByParticipant(
@@ -633,7 +666,7 @@ async function handleRespondInvitation(
       </section>
 
       {/* MI EQUIPO */}
-          <section
+        <section
   id="mi-equipo"
   style={{
     background: "#F7FAFF",
@@ -649,106 +682,6 @@ async function handleRespondInvitation(
       description="Activa tu disponibilidad y recibe una sugerencia de compañeros compatibles para tu evento."
     />
 
-    {invitations.length > 0 && (
-      <article className="feat-card" style={{ marginTop: 36 }}>
-        <h3 style={cardTitle}>Invitaciones pendientes</h3>
-
-        <p
-          style={{
-            fontSize: 13,
-            color: "#5A6A85",
-            lineHeight: 1.6,
-            marginTop: 8,
-            marginBottom: 18,
-          }}
-        >
-          Otros participantes te han invitado a formar parte de sus equipos.
-          Puedes aceptar o rechazar cada invitación.
-        </p>
-
-        <div style={{ display: "grid", gap: 12 }}>
-          {invitations.map((invitation) => (
-            <div
-              key={invitation.id}
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                gap: 16,
-                padding: "14px 16px",
-                borderRadius: 14,
-                background: "#F7FAFF",
-                border: "1px solid #E4EAF2",
-              }}
-            >
-              <div>
-                <p
-                  style={{
-                    fontSize: 14,
-                    fontWeight: 800,
-                    color: "#050A14",
-                  }}
-                >
-                  {invitation.teams?.name ?? "Equipo sin nombre"}
-                </p>
-
-                <p
-                  style={{
-                    fontSize: 12,
-                    color: "#5A6A85",
-                    marginTop: 4,
-                  }}
-                >
-                  Balance estimado:{" "}
-                  {invitation.teams?.balance_score ?? "N/A"}/5
-                </p>
-              </div>
-
-              <div style={{ display: "flex", gap: 8 }}>
-                <button
-                  type="button"
-                  onClick={() =>
-                    handleRespondInvitation(invitation.id, "Aceptado")
-                  }
-                  style={{
-                    border: "none",
-                    borderRadius: 10,
-                    background: "#0085FF",
-                    color: "#FFFFFF",
-                    padding: "10px 14px",
-                    fontSize: 13,
-                    fontWeight: 800,
-                    cursor: "pointer",
-                  }}
-                >
-                  Aceptar
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    handleRespondInvitation(invitation.id, "Rechazado")
-                  }
-                  style={{
-                    border: "1px solid #E4EAF2",
-                    borderRadius: 10,
-                    background: "#FFFFFF",
-                    color: "#5A6A85",
-                    padding: "10px 14px",
-                    fontSize: 13,
-                    fontWeight: 800,
-                    cursor: "pointer",
-                  }}
-                >
-                  Rechazar
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </article>
-    )}
-
     <div
       style={{
         display: "grid",
@@ -757,9 +690,222 @@ async function handleRespondInvitation(
         marginTop: 36,
       }}
     >
-      {/* aquí va tu card de Estado de búsqueda */}
+      <article className="feat-card">
+        <h3 style={cardTitle}>Estado de búsqueda</h3>
 
-      {/* aquí va tu card de Equipo sugerido */}
+        <p
+          style={{
+            fontSize: 13,
+            color: "#5A6A85",
+            lineHeight: 1.6,
+            marginTop: 10,
+          }}
+        >
+          Si activas esta opción, SkillMatch usará tu perfil, rol preferido,
+          habilidades y evento seleccionado para sugerirte posibles compañeros.
+        </p>
+
+        <label
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            marginTop: 20,
+            fontSize: 14,
+            fontWeight: 700,
+            color: "#050A14",
+            cursor: "pointer",
+          }}
+        >
+          <input
+            type="checkbox"
+            checked={lookingForTeam}
+            onChange={(event) =>
+              handleToggleLookingForTeam(event.target.checked)
+            }
+          />
+          Estoy buscando equipo
+        </label>
+
+        <div style={{ marginTop: 22 }}>
+          <label
+            style={{
+              display: "block",
+              fontSize: 13,
+              fontWeight: 700,
+              color: "#050A14",
+              marginBottom: 8,
+            }}
+          >
+            Tamaño del equipo
+          </label>
+
+          <select
+            value={teamSize}
+            onChange={(event) => setTeamSize(event.target.value)}
+            style={{
+              width: "100%",
+              padding: "12px 14px",
+              borderRadius: 12,
+              border: "1px solid #E4EAF2",
+              outline: "none",
+              background: "#FFFFFF",
+              color: "#050A14",
+            }}
+          >
+            <option value="2">2 integrantes</option>
+            <option value="3">3 integrantes</option>
+            <option value="4">4 integrantes</option>
+            <option value="5">5 integrantes</option>
+            <option value="6">6 integrantes</option>
+          </select>
+        </div>
+
+        <button
+          type="button"
+          onClick={handleSearchTeam}
+          disabled={!lookingForTeam || !participant}
+          style={{
+            marginTop: 24,
+            width: "100%",
+            border: "none",
+            borderRadius: 12,
+            background: "#0085FF",
+            color: "#FFFFFF",
+            padding: "13px 18px",
+            fontWeight: 800,
+            cursor: !lookingForTeam || !participant ? "not-allowed" : "pointer",
+            opacity: !lookingForTeam || !participant ? 0.6 : 1,
+          }}
+        >
+          Buscar equipo sugerido
+        </button>
+      </article>
+
+      <article className="feat-card">
+        <h3 style={cardTitle}>Equipo sugerido</h3>
+
+        {suggestedTeam.length === 0 ? (
+          <p
+            style={{
+              fontSize: 13,
+              color: "#5A6A85",
+              lineHeight: 1.6,
+              marginTop: 12,
+            }}
+          >
+            Aún no hay sugerencias. Activa tu disponibilidad, selecciona el
+            tamaño del equipo y presiona “Buscar equipo sugerido”.
+          </p>
+        ) : (
+          <>
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 8,
+                marginTop: 14,
+                marginBottom: 18,
+              }}
+            >
+              <span className="tag-pill">
+                {suggestedTeam.length} integrantes
+              </span>
+
+              <span className="tag-pill">
+                Promedio{" "}
+                {(
+                  suggestedTeam.reduce(
+                    (sum, member) => sum + getParticipantAverage(member),
+                    0,
+                  ) / suggestedTeam.length
+                ).toFixed(1)}
+                /5
+              </span>
+            </div>
+
+            <div style={{ display: "grid", gap: 10 }}>
+              {suggestedTeam.map((member) => (
+                <div
+                  key={member.id}
+                  style={{
+                    padding: "12px 14px",
+                    borderRadius: 14,
+                    background:
+                      member.id === participant?.id
+                        ? "rgba(0,133,255,0.08)"
+                        : "#F7FAFF",
+                    border:
+                      member.id === participant?.id
+                        ? "1px solid rgba(0,133,255,0.25)"
+                        : "1px solid #E4EAF2",
+                  }}
+                >
+                  <p
+                    style={{
+                      fontSize: 14,
+                      fontWeight: 800,
+                      color: "#050A14",
+                    }}
+                  >
+                    {member.full_name}
+                    {member.id === participant?.id ? " (Tú)" : ""}
+                  </p>
+
+                  <p
+                    style={{
+                      fontSize: 12,
+                      color: "#5A6A85",
+                      marginTop: 4,
+                    }}
+                  >
+                    {member.preferred_role} · Promedio{" "}
+                    {getParticipantAverage(member)}/5
+                  </p>
+
+                  <div
+                    style={{
+                      display: "flex",
+                      flexWrap: "wrap",
+                      gap: 6,
+                      marginTop: 8,
+                    }}
+                  >
+                    {member.interests?.slice(0, 3).map((interest) => (
+                      <span key={interest} className="tag-pill">
+                        {interest}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              onClick={handleCreateSuggestedTeam}
+              disabled={creatingTeam || suggestedTeam.length === 0}
+              style={{
+                marginTop: 20,
+                width: "100%",
+                border: "none",
+                borderRadius: 12,
+                background: "#050A14",
+                color: "#FFFFFF",
+                padding: "13px 18px",
+                fontWeight: 800,
+                cursor:
+                  creatingTeam || suggestedTeam.length === 0
+                    ? "not-allowed"
+                    : "pointer",
+                opacity: creatingTeam || suggestedTeam.length === 0 ? 0.6 : 1,
+              }}
+            >
+              {creatingTeam ? "Enviando invitaciones..." : "Enviar invitaciones"}
+            </button>
+          </>
+        )}
+      </article>
     </div>
   </div>
 </section>
