@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { supabase } from './database/SupabaseClient'
+import { supabase } from './database/supabaseClient'
 
 type Category = {
   id: number

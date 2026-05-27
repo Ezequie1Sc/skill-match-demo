@@ -29,7 +29,7 @@ export async function getCategories(): Promise<Category[]>{
     }
     return data ?? [];
 
-
+}
 export async function createCategory(category: CreateCategoryData): Promise<void>{
     const {error} = await supabase.from("categories").insert(category)
 
