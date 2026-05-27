@@ -77,12 +77,12 @@ function useInView(threshold = 0.15) {
   return { ref, inView }
 }
 
-const metrics = [
-  { value: "0", label: "Usuarios activos" },
-  { value: "0%", label: "Efectividad" },
-  { value: "0", label: "Equipos creados" },
-  { value: "0", label: "Satisfacción" },
-]
+//const metrics = [
+//  { value: "0", label: "Usuarios activos" },
+//  { value: "0%", label: "Efectividad" },
+//  { value: "0", label: "Equipos creados" },
+//  { value: "0", label: "Satisfacción" },
+//]
 
 const problems = [
   {
@@ -328,6 +328,9 @@ function StudentHome() {
       </div>
 
       {/* METRICS */}
+
+      {/*
+       
       <div className="metrics-grid" style={{ 
         display: 'grid', 
         gridTemplateColumns: 'repeat(4, 1fr)', 
@@ -349,6 +352,7 @@ function StudentHome() {
           </div>
         ))}
       </div>
+      */}
     </div>
 
     {/* IMAGEN */}
@@ -383,8 +387,7 @@ function StudentHome() {
             Plataforma activa
           </p>
           <p className="font-display" style={{ fontSize: 20, fontWeight: 600 }}>
-            +2,500 profesionales
-          </p>
+            </p>
         </div>
       </div>
     </div>
@@ -707,6 +710,9 @@ function StudentHome() {
       gridTemplateColumns: 'repeat(3, 1fr)',
       gap: 24
     }}>
+      {/**
+       * 
+      
       {[
         { label: "Ahorro de tiempo", value: "−3 horas semanales" },
         { label: "Productividad", value: "+156% entregas" },
@@ -728,6 +734,7 @@ function StudentHome() {
           </p>
         </div>
       ))}
+         */}
     </div>
 
     {/* CTA */}
