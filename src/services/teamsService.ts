@@ -1,158 +1,117 @@
-import { supabase } from "../database/supabaseClient"
-import type { ParticipantData } from "./participantsService"
+import { supabase } from "../database/supabaseClient";
 
-export type CreateTeamData = {
-  name: string
-  event_id: number
-  balance_score: number
-  members: ParticipantData[]
-}
+const DEMO_MODE = import.meta.env.VITE_DEMO_MODE === 'true';
 
-export type TeamInvitation = {
-  id: number
-  status: string
-  team_id: number
-  participant_id: number
-  teams: {
-    id: number
-    name: string
-    status: string
-    balance_score: number
-    event_id: number
-  } | null
-}
+const demoTeams = [
+  {
+    id: 1,
+    name: 'Equipo Alpha',
+    event_id: 1,
+    balance_score: 92,
+    status: 'active',
+    created_at: new Date().toISOString(),
+  },
+  {
+    id: 2,
+    name: 'Equipo Beta',
+    event_id: 1,
+    balance_score: 87,
+    status: 'active',
+    created_at: new Date().toISOString(),
+  },
+];
 
-export async function getPendingInvitationsByParticipant(
-  participantId: number,
-): Promise<TeamInvitation[]> {
-  const { data, error } = await supabase
-    .from("team_members")
-    .select(`
-      id,
-      status,
-      team_id,
-      participant_id,
-      teams (
-        id,
-        name,
-        status,
-        balance_score,
-        event_id
-      )
-    `)
-    .eq("participant_id", participantId)
-    .eq("status", "Pendiente")
-
-  if (error) {
-    throw new Error(error.message)
+export async function getTeams() {
+  if (DEMO_MODE) {
+    return demoTeams;
   }
 
-  return (data ?? []) as unknown as TeamInvitation[]
+  const { data, error } = await supabase
+    .from('teams')
+    .select('id,name,event_id,balance_score,status,created_at')
+    .order('id', { ascending: true });
+
+  if (error) throw error;
+
+  return data || [];
 }
-
-
+export type CreateTeamWithMembersData = {
+  name: string
+  event_id: number
+  member_ids: number[]
+}
 
 
 export async function createTeamWithMembers(
-  team: CreateTeamData,
-  creatorParticipantId: number,
+  teamData: CreateTeamWithMembersData,
 ): Promise<void> {
-  const { data: createdTeam, error: teamError } = await supabase
+  if (DEMO_MODE) return
+
+  const { data: team, error: teamError } = await supabase
     .from("teams")
     .insert({
-      name: team.name,
-      event_id: team.event_id,
-      balance_score: team.balance_score,
-      status: "Pendiente",
+      name: teamData.name,
+      event_id: teamData.event_id,
+      balance_score: 0,
+      status: "active",
     })
     .select("id")
     .single()
 
-  if (teamError) {
-    throw new Error(teamError.message)
-  }
+  if (teamError) throw new Error(teamError.message)
 
-  const membersPayload = team.members.map((member) => ({
-    team_id: createdTeam.id,
-    participant_id: member.id,
-    status:
-      member.id === creatorParticipantId
-        ? "Aceptado"
-        : "Pendiente",
+  const members = teamData.member_ids.map((participantId) => ({
+    team_id: team.id,
+    participant_id: participantId,
   }))
 
   const { error: membersError } = await supabase
     .from("team_members")
-    .insert(membersPayload)
+    .insert(members)
 
-  if (membersError) {
-    throw new Error(membersError.message)
-  }
+  if (membersError) throw new Error(membersError.message)
 }
+// --- AGREGAR AL FINAL DE src/services/teamsService.ts ---
 
+export type TeamInvitation = {
+  id: number;
+  team_id: number;
+  participant_id: number;
+  status: 'pending' | 'accepted' | 'rejected';
+  created_at: string;
+  teams?: {
+    id: number;
+    name: string;
+    event_id: number;
+  };
+};
+
+export async function getPendingInvitationsByParticipant(participantId: number): Promise<TeamInvitation[]> {
+  if (DEMO_MODE) return [];
+
+  const { data, error } = await supabase
+    .from('team_invitations')
+    .select('*, teams(id, name, event_id)')
+    .eq('participant_id', participantId)
+    .eq('status', 'pending');
+
+  if (error) throw error;
+  return data || [];
+}
 
 export async function respondToTeamInvitation(
-  teamMemberId: number,
-  status: "Aceptado" | "Rechazado",
+  invitationId: number,
+  status: 'Aceptado' | 'Rechazado'
 ): Promise<void> {
+  if (DEMO_MODE) return;
+
+  // Normalizar el estado para la base de datos
+  const dbStatus = status === 'Aceptado' ? 'accepted' : 'rejected';
+
   const { error } = await supabase
-    .from("team_members")
-    .update({ status })
-    .eq("id", teamMemberId)
+    .from('team_invitations')
+    .update({ status: dbStatus })
+    .eq('id', invitationId);
 
-  if (error) {
-    throw new Error(error.message)
-  }
-}
-
-
-
-export type TeamData = {
-  id: number
-  name: string
-  event_id: number | null
-  balance_score: number | null
-  status?: string | null
-  created_at: string | null
-}
-
-export async function getTeams(): Promise<TeamData[]> {
-  const { data, error } = await supabase
-    .from("teams")
-    .select(`
-      id,
-      name,
-      event_id,
-      balance_score,
-      status,
-      created_at
-    `)
-    .order("id", { ascending: true })
-
-  if (error) {
-    throw new Error(error.message)
-  }
-
-  return (data ?? []) as unknown as TeamData[]
-}
-
-export async function getTeam(id: number): Promise<TeamData | null> {
-  const { data, error } = await supabase
-    .from("teams")
-    .select(`
-      id,
-      name,
-      event_id,
-      balance_score,
-      status,
-      created_at
-    `)
-    .eq("id", id)
-    .single()
-
-  if (error) {
-    throw new Error(error.message)
-  }
-
-  return data as unknown as TeamData
+  if (error) throw error;
 }

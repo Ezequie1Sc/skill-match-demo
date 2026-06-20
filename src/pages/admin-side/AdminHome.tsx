@@ -5,7 +5,7 @@ import type { ChangeEvent, FormEvent } from "react"
 import AdminNavbar from "../../components/AdminNavBar"
 import { supabase } from "../../database/supabaseClient"
 import "../student-side/StudentHome.css"
-import { getTeam, getTeams } from "../../services/teamsService"
+import { getTeams } from "../../services/teamsService" // ✅ CORREGIDO: Solo importamos getTeams
 
 type Participant = {
   id: number
@@ -88,9 +88,6 @@ const initialEventForm: EventFormData = {
 const saved_teams = await getTeams();
 console.log("saved Teams")
 console.log(saved_teams)
-
-
-
 
 function useInView(threshold = 0.15) {
   const ref = useRef<HTMLDivElement>(null)
@@ -396,7 +393,7 @@ function AdminHome() {
                   heroVisible ? "show" : ""
                 }`}
               >
-              {/* 
+              {/*
               <span className="dot" />
                 Panel del administrador
                 */}
@@ -605,8 +602,6 @@ function AdminHome() {
           >
               
             {/*
-
-            
             <div className="ticker-track">
               {[...Array(2)].map((_, r) =>
                 [
