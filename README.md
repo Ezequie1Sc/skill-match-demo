@@ -1,75 +1,126 @@
-# React + TypeScript + Vite
+<div align="center">
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# SkillMatch
 
-Currently, two official plugins are available:
+### Plataforma Inteligente para la Formación de Equipos
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Sistema web diseñado para analizar habilidades, intereses y roles preferidos de estudiantes con el objetivo de generar equipos de trabajo equilibrados para proyectos académicos, hackatones y eventos de innovación.
 
-## React Compiler
+<br>
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+<img src="./public/hero.png" alt="Vista previa de SkillMatch" width="100%" />
 
-Note: This will impact Vite dev & build performances.
+</div>
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Acerca del proyecto
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+SkillMatch surge como una solución al desafío de formar equipos de trabajo equilibrados en entornos académicos. Tradicionalmente, los equipos suelen conformarse de manera informal, lo que puede generar desequilibrios en habilidades, responsabilidades y participación.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+La plataforma permite registrar perfiles de estudiantes, analizar sus habilidades e intereses y generar equipos equilibrados automáticamente para mejorar la colaboración y el desempeño de los proyectos.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+---
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Problema
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+La formación de equipos en proyectos académicos suele realizarse basándose en amistades o decisiones rápidas, provocando:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+* Distribución desigual de habilidades.
+* Equipos poco equilibrados.
+* Sobrecarga de responsabilidades en algunos integrantes.
+* Menor eficiencia durante el desarrollo de proyectos.
+* Dificultad para encontrar perfiles complementarios.
+
+---
+
+## Solución
+
+SkillMatch recopila y analiza información de los participantes para generar equipos equilibrados considerando:
+
+* Habilidades técnicas.
+* Intereses.
+* Roles preferidos.
+* Capacidades de liderazgo.
+* Competencias complementarias.
+
+---
+
+## Características principales
+
+* Registro de estudiantes.
+* Creación y gestión de perfiles.
+* Captura de habilidades e intereses.
+* Selección de roles preferidos.
+* Gestión de eventos.
+* Generación automática de equipos.
+* Dashboard administrativo.
+* Visualización de métricas y estadísticas.
+* Diseño responsive para dispositivos móviles y escritorio.
+
+---
+
+## Flujo de funcionamiento
+
+1. Registro de participantes.
+2. Captura de habilidades e intereses.
+3. Selección de roles preferidos.
+4. Análisis de perfiles.
+5. Generación automática de equipos equilibrados.
+6. Visualización de resultados y métricas.
+
+---
+
+## Tecnologías utilizadas
+
+| Tecnología   | Uso                           |
+| ------------ | ----------------------------- |
+| React        | Desarrollo de interfaz        |
+| TypeScript   | Tipado estático               |
+| Vite         | Entorno de desarrollo         |
+| Tailwind CSS | Estilos y diseño              |
+| Supabase     | Backend y base de datos       |
+| PostgreSQL   | Almacenamiento de información |
+| Git          | Control de versiones          |
+| GitHub       | Gestión del código fuente     |
+| Vercel       | Despliegue                    |
+
+---
+
+## Objetivo
+
+Facilitar la formación de equipos de trabajo equilibrados mediante el análisis de habilidades, intereses y perfiles de los participantes, promoviendo una mejor colaboración y organización en proyectos académicos y eventos de innovación.
+
+---
+
+## Creadores
+
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/Ezequie1Sc">
+        <img src="https://github.com/Ezequie1Sc.png" width="100px;" alt="Ezequiel Salazar"/>
+        <br />
+        <sub><b>Ezequiel Salazar</b></sub>
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://github.com/Arturo-Chi">
+        <img src="https://github.com/Arturo-Chi.png" width="100px;" alt="Arturo Chi"/>
+        <br />
+        <sub><b>Arturo Chi</b></sub>
+      </a>
+    </td>
+  </tr>
+</table>
+
+Proyecto desarrollado de manera colaborativa por **Ezequiel Salazar** y **Arturo Chi**.
+
+---
+
+## Estado del proyecto
+
+✅ Funcional
+🚀 Disponible para demostración y portafolio
+
+---
