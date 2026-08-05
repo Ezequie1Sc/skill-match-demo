@@ -11,10 +11,10 @@ Sistema web diseñado para analizar habilidades, intereses y roles preferidos de
 <img src="./public/hero.png" alt="Vista previa de SkillMatch" width="100%" />
 
 </div>
-
+ 
 ---
 
-## Acerca del proyecto
+## Acerca del proyecto.
 
 SkillMatch surge como una solución al desafío de formar equipos de trabajo equilibrados en entornos académicos. Tradicionalmente, los equipos suelen conformarse de manera informal, lo que puede generar desequilibrios en habilidades, responsabilidades y participación.
 
