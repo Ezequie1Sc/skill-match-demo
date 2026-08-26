@@ -5,7 +5,6 @@
 ### Plataforma Inteligente para la Formación de Equipos
 
 Sistema web diseñado para analizar habilidades, intereses y roles preferidos de estudiantes con el objetivo de generar equipos de trabajo equilibrados para proyectos académicos, hackatones y eventos de innovación.
-
 <br>
 
 <img src="./public/hero.png" alt="Vista previa de SkillMatch" width="100%" />
